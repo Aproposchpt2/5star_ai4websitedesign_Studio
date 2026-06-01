@@ -1,227 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI4 Website Design Studio — Custom AI-Built Websites</title>
-<meta name="description" content="AI4 Website Design Studio builds premium, purpose-first websites using an AI design engine. Not templates. Real design direction.">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI4 Website Design Studio</title>
 <style>
-:root{
-  --bg:#030816;--bg2:#061225;--bg3:#07152a;
-  --line:rgba(184,196,217,.12);--line-s:rgba(45,184,255,.28);
-  --blue:#1EA7FF;--blue2:#2DB8FF;--blue4:#5BD3FF;
-  --silver:#D5DEEA;--white:#F5F8FF;--muted:#AEBED3;--muted2:#90A3BC;
-  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;--display:'Syne',sans-serif;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 18% 10%,rgba(30,167,255,.18),transparent 28%),radial-gradient(circle at 84% 12%,rgba(91,211,255,.10),transparent 32%),radial-gradient(circle at 50% 55%,rgba(30,167,255,.06),transparent 45%),linear-gradient(180deg,var(--bg) 0%,#02050e 54%,var(--bg2) 100%);color:var(--muted);font-family:var(--sans)}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(45,184,255,.038) 1px,transparent 1px),linear-gradient(90deg,rgba(45,184,255,.032) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.18) 60%,rgba(0,0,0,.04))}
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:72px;padding:.85rem clamp(1rem,4vw,2.75rem);background:rgba(3,8,22,.94);border-bottom:1px solid var(--line);backdrop-filter:blur(24px)}
-.nav-left{display:flex;align-items:center;gap:.9rem;text-decoration:none}
-.nav-logo-img{height:80px;width:auto;filter:drop-shadow(0 0 18px rgba(30,167,255,0.5));object-fit:contain}
-.nav-logo-text{display:flex;flex-direction:column;line-height:1.08}
-.nav-logo-name{font-family:var(--display);font-size:.92rem;font-weight:800;color:var(--white);letter-spacing:.02em}
-.nav-logo-sub{font-family:var(--mono);font-size:.52rem;color:var(--muted2);letter-spacing:.13em;text-transform:uppercase}
-.nav-right{display:flex;align-items:center;gap:.75rem}
-.nav-link{font-size:.82rem;color:var(--muted2);text-decoration:none;padding:.4rem .7rem;border-radius:6px;transition:color .2s}
-.nav-link:hover{color:var(--silver)}
-.nav-cta{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,var(--white),var(--blue4) 44%,var(--blue));border:none;border-radius:999px;padding:.6rem 1.4rem;font-size:.8rem;font-weight:800;color:#03101f;text-decoration:none;cursor:pointer;box-shadow:0 0 24px rgba(30,167,255,.28);transition:all .2s;font-family:var(--sans)}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 0 38px rgba(30,167,255,.44)}
-.hero{position:relative;z-index:1;min-height:calc(100vh - 72px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(2rem,5vw,4rem) clamp(1rem,4vw,2.5rem);text-align:center;gap:0}
-.hero-eyebrow{display:flex;align-items:center;justify-content:center;gap:.65rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;color:var(--blue4);text-transform:uppercase;margin-bottom:1.4rem}
-.eyebrow-line{display:inline-block;width:28px;height:1px;background:linear-gradient(90deg,transparent,var(--blue4))}
-.eyebrow-line.r{background:linear-gradient(270deg,transparent,var(--blue4))}
-.hero-logo-wrap{position:relative;width:min(960px,88vw);height:clamp(320px,34vw,480px);margin:0 auto clamp(1.5rem,2.5vw,2.8rem);filter:drop-shadow(0 30px 60px rgba(0,0,0,.48))}
-.hero-logo-wrap::before{content:'';position:absolute;left:50%;top:8%;width:70%;height:55%;transform:translateX(-50%);background:radial-gradient(ellipse at center,rgba(30,167,255,.26),rgba(30,167,255,.08) 48%,transparent 75%);filter:blur(32px);z-index:-1}
-.hero-logo-img{position:absolute;left:50%;top:10%;width:min(720px,76%);transform:translateX(-50%);height:auto;max-height:380px;object-fit:contain;display:block;filter:drop-shadow(0 24px 60px rgba(0,0,0,.52)) drop-shadow(0 0 30px rgba(30,167,255,.22))}
-.arc-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
-.hero-h1{font-family:var(--display);font-size:clamp(2.4rem,4.8vw,4rem);font-weight:800;line-height:1.06;letter-spacing:-.05em;color:var(--white);max-width:1000px;margin:0 auto .9rem}
-.grad{background:linear-gradient(135deg,var(--white) 0%,var(--silver) 28%,var(--blue4) 64%,var(--blue2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{font-size:clamp(.98rem,1.4vw,1.12rem);color:var(--silver);line-height:1.7;max-width:680px;margin:0 auto 1.8rem}
-.hero-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.85rem}
-.btn-primary{display:inline-flex;align-items:center;gap:.65rem;background:linear-gradient(135deg,var(--white),var(--blue4) 44%,var(--blue));border:1px solid rgba(245,248,255,.55);border-radius:999px;padding:.95rem 2.1rem;font-weight:900;font-size:.96rem;color:#03101f;text-decoration:none;cursor:pointer;box-shadow:0 0 38px rgba(30,167,255,.32),inset 0 1px 0 rgba(255,255,255,.7);transition:all .22s;font-family:var(--sans)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 56px rgba(30,167,255,.5),0 16px 40px rgba(0,0,0,.28)}
-.btn-ghost{display:inline-flex;align-items:center;gap:.5rem;background:transparent;border:1px solid rgba(184,196,217,.22);border-radius:999px;padding:.85rem 1.8rem;font-size:.88rem;color:var(--muted);text-decoration:none;cursor:pointer;transition:all .2s;font-family:var(--sans)}
-.btn-ghost:hover{border-color:rgba(184,196,217,.4);color:var(--silver)}
-.hero-proof{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:2rem;flex-wrap:wrap}
-.proof-item{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;color:var(--muted2);text-transform:uppercase;display:flex;align-items:center;gap:.4rem}
-.proof-dot{width:4px;height:4px;border-radius:50%;background:var(--blue)}
-.section{position:relative;z-index:1;padding:clamp(4rem,8vw,7rem) clamp(1rem,4vw,2.5rem)}
-.section-inner{max-width:1080px;margin:0 auto}
-.section-eyebrow{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;color:var(--blue4);text-transform:uppercase;text-align:center;margin-bottom:.8rem}
-.section-title{font-family:var(--display);font-size:clamp(1.8rem,3.2vw,2.7rem);font-weight:800;letter-spacing:-.04em;color:var(--white);text-align:center;margin-bottom:.7rem}
-.section-sub{font-size:clamp(.88rem,1.2vw,1rem);color:var(--muted2);text-align:center;max-width:580px;margin:0 auto 3.5rem;line-height:1.7}
-.divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent);margin:0 auto 3.5rem;box-shadow:0 0 12px rgba(30,167,255,.5)}
-.flow-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.2rem}
-.flow-step{background:rgba(6,18,37,.8);border:1px solid rgba(45,184,255,.14);border-radius:14px;padding:1.6rem 1.3rem;text-align:center;transition:border-color .2s}
-.flow-step:hover{border-color:rgba(45,184,255,.32)}
-.step-num{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;color:var(--blue4);text-transform:uppercase;margin-bottom:.8rem}
-.step-icon{font-size:1.5rem;margin-bottom:.7rem;display:block}
-.step-name{font-family:var(--display);font-size:.92rem;font-weight:700;color:var(--white);margin-bottom:.4rem}
-.step-desc{font-size:.76rem;color:var(--muted2);line-height:1.55}
-.systems-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
-.system-card{background:rgba(6,18,37,.7);border:1px solid rgba(184,196,217,.1);border-radius:12px;padding:1.4rem;transition:all .22s}
-.system-card:hover{border-color:rgba(30,167,255,.3);background:rgba(6,18,37,.95);transform:translateY(-2px)}
-.sys-badge{font-family:var(--mono);font-size:.55rem;letter-spacing:.1em;color:var(--blue4);background:rgba(30,167,255,.1);border:1px solid rgba(30,167,255,.2);border-radius:20px;padding:3px 9px;display:inline-block;margin-bottom:.7rem;text-transform:uppercase}
-.sys-name{font-family:var(--display);font-size:.96rem;font-weight:700;color:var(--white);margin-bottom:.4rem}
-.sys-desc{font-size:.76rem;color:var(--muted2);line-height:1.55}
-.sys-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.75rem}
-.sys-tag{font-size:.67rem;color:var(--muted2);background:rgba(255,255,255,.04);border:1px solid rgba(184,196,217,.1);border-radius:4px;padding:2px 7px}
-.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem}
-.why-card{background:rgba(6,18,37,.6);border:1px solid rgba(184,196,217,.09);border-radius:14px;padding:1.6rem}
-.why-icon{font-size:1.4rem;margin-bottom:.8rem;display:block}
-.why-title{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--white);margin-bottom:.4rem}
-.why-desc{font-size:.8rem;color:var(--muted2);line-height:1.6}
-.cta-section{position:relative;z-index:1;padding:clamp(4rem,8vw,7rem) clamp(1rem,4vw,2.5rem);text-align:center}
-.cta-card{max-width:760px;margin:0 auto;background:linear-gradient(135deg,rgba(6,18,37,.95),rgba(3,8,22,.98));border:1px solid rgba(30,167,255,.28);border-radius:20px;padding:clamp(2.5rem,5vw,4rem) clamp(1.5rem,4vw,3.5rem);position:relative;overflow:hidden}
-.cta-card::before{content:'';position:absolute;top:-60px;right:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(30,167,255,.1),transparent 70%);pointer-events:none}
-.cta-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;color:var(--blue4);text-transform:uppercase;margin-bottom:1rem}
-.cta-title{font-family:var(--display);font-size:clamp(1.7rem,3.2vw,2.6rem);font-weight:800;letter-spacing:-.04em;color:var(--white);margin-bottom:.8rem}
-.cta-sub{font-size:.92rem;color:var(--silver);line-height:1.7;margin-bottom:2rem;max-width:520px;margin-left:auto;margin-right:auto}
-footer{position:relative;z-index:1;border-top:1px solid var(--line);padding:2.2rem clamp(1rem,4vw,2.75rem);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-.footer-logo{display:flex;align-items:center;gap:.7rem;text-decoration:none}
-.footer-logo-img{width:52px;height:28px;border-radius:6px;object-fit:cover;object-position:center 43%;opacity:.8}
-.footer-name{font-family:var(--display);font-size:.78rem;font-weight:700;color:var(--muted2)}
-.footer-links{display:flex;gap:1.2rem;flex-wrap:wrap}
-.footer-link{font-size:.75rem;color:var(--muted2);text-decoration:none;transition:color .2s}
-.footer-link:hover{color:var(--silver)}
-.footer-copy{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;color:rgba(144,163,188,.5);text-transform:uppercase}
-@media(max-width:680px){.nav-right .nav-link{display:none}.hero-logo-wrap{width:112vw;margin-left:-6vw;margin-right:-6vw;height:clamp(240px,58vw,360px)}}
-@media(max-width:460px){.hero-actions{flex-direction:column;width:100%}.btn-primary,.btn-ghost{width:100%;justify-content:center}}
+:root{--bg:#030914;--ink:#eef7ff;--muted:#93a7bc;--cyan:#45d6ff;--cyan2:#9beeff;--line:rgba(98,211,255,.14);--panel:rgba(5,14,27,.86);--dark:#020710;--gold:#f0a500;--green:#22d87a}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 50% 28%,rgba(43,178,255,.24),transparent 30%),radial-gradient(circle at 50% 82%,rgba(0,153,255,.16),transparent 36%),linear-gradient(90deg,rgba(111,210,255,.045) 1px,transparent 1px),linear-gradient(rgba(111,210,255,.045) 1px,transparent 1px),linear-gradient(180deg,#020710 0%,#06223a 48%,#020914 100%);background-size:auto,auto,72px 72px,72px 72px,auto}.topbar{min-height:118px;display:flex;align-items:center;justify-content:space-between;gap:28px;padding:16px clamp(18px,4vw,56px);background:rgba(2,7,18,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;backdrop-filter:blur(18px)}.brand{display:flex;align-items:center;gap:18px}.logo-box{width:154px;height:88px;background:#020710;border:1px solid rgba(69,214,255,.15);display:grid;place-items:center;box-shadow:0 18px 54px rgba(0,0,0,.5);overflow:hidden}.brand-logo-img{width:100%;height:100%;object-fit:cover;object-position:center}.brand-copy strong{display:block;font-size:clamp(17px,1.6vw,24px);line-height:1;letter-spacing:.045em}.brand-copy small{display:block;margin-top:6px;color:#8ba0b6;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:900}.navlinks{display:flex;align-items:center;justify-content:flex-end;gap:clamp(18px,3vw,48px);color:var(--muted);font-weight:800}.navlinks a{color:inherit;text-decoration:none}.navlinks a:hover{color:var(--cyan2)}button{font:inherit}.start-btn,.cta{appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:16px 26px;border-radius:999px;background:linear-gradient(135deg,#e7fbff 0%,#8aeaff 50%,#42c7ff 100%);color:#02101c;font-weight:1000;text-decoration:none;box-shadow:0 0 0 1px rgba(255,255,255,.28) inset,0 14px 42px rgba(50,202,255,.25);white-space:nowrap}.ghost{display:inline-flex;align-items:center;justify-content:center;padding:14px 20px;border-radius:999px;border:1px solid rgba(122,216,255,.18);color:var(--ink);text-decoration:none;background:rgba(255,255,255,.04);font-weight:900;cursor:pointer}.hero{min-height:calc(100vh - 118px);padding:70px clamp(18px,5vw,72px) 70px;display:grid;place-items:center;text-align:center;position:relative;overflow:hidden}.hero-inner{width:min(1180px,100%);position:relative;z-index:1}.eyebrow{display:inline-flex;align-items:center;gap:16px;color:var(--cyan);font-size:11px;letter-spacing:.36em;text-transform:uppercase;font-weight:900;margin-bottom:36px}.eyebrow:before,.eyebrow:after{content:"";width:30px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan))}.eyebrow:after{background:linear-gradient(90deg,var(--cyan),transparent)}.hero-logo{width:min(760px,88vw);aspect-ratio:16/9;margin:0 auto 56px;background:radial-gradient(circle at 50% 58%,rgba(48,188,255,.23),transparent 35%),linear-gradient(145deg,#02040a,#070b15 52%,#02040a);display:grid;place-items:center;box-shadow:0 35px 110px rgba(0,0,0,.6),0 0 90px rgba(44,171,255,.16);border:1px solid rgba(120,215,255,.14);position:relative;overflow:hidden}.hero-logo-img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:drop-shadow(0 24px 60px rgba(0,0,0,.52)) drop-shadow(0 0 30px rgba(30,167,255,.22))}.headline{max-width:1120px;margin:0 auto;font-size:clamp(48px,7vw,92px);line-height:.93;letter-spacing:-.075em;font-weight:1000;color:#eff6ff;text-shadow:0 20px 80px rgba(0,0,0,.5)}.headline span{background:linear-gradient(90deg,#eaf5ff,#5bd8ff 45%,#24bcff);-webkit-background-clip:text;background-clip:text;color:transparent}.subline{max-width:820px;margin:28px auto 0;color:#9fb4c7;font-size:clamp(17px,1.6vw,22px);line-height:1.65}.hero-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:34px}.studio-panels{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(2,9,19,.56)}.studio-panel{padding:clamp(26px,4vw,50px);min-height:250px;border-right:1px solid var(--line)}.studio-panel:last-child{border-right:0}.studio-panel small{display:block;margin-bottom:22px;color:var(--cyan);font-size:11px;letter-spacing:.26em;text-transform:uppercase;font-weight:950}.studio-panel h2{margin:0 0 14px;font-size:clamp(26px,3vw,42px);line-height:1;letter-spacing:-.055em}.studio-panel p{margin:0;color:var(--muted);line-height:1.7}.statement{padding:90px clamp(18px,5vw,72px);text-align:center}.statement h2{max-width:960px;margin:0 auto 20px;font-size:clamp(42px,6vw,86px);line-height:.92;letter-spacing:-.075em;color:#eff6ff}.statement p{max-width:760px;margin:0 auto;color:#9fb4c7;font-size:clamp(17px,1.5vw,21px);line-height:1.7}.process{padding:40px clamp(18px,5vw,72px) 90px}.process-title{text-align:center;margin-bottom:30px}.process-title small{display:block;color:var(--cyan);font-size:11px;letter-spacing:.26em;text-transform:uppercase;font-weight:950;margin-bottom:12px}.process-title h2{margin:0;font-size:clamp(34px,4.6vw,64px);line-height:1;letter-spacing:-.06em}.bubbles{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}.bubble{min-height:230px;border:1px solid rgba(122,216,255,.18);border-radius:999px;background:radial-gradient(circle at 50% 0%,rgba(69,214,255,.12),transparent 48%),linear-gradient(145deg,rgba(7,20,38,.92),rgba(3,9,20,.94));box-shadow:0 28px 90px rgba(0,0,0,.24),0 0 70px rgba(54,200,255,.08);padding:28px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.bubble strong{display:grid;place-items:center;width:40px;height:40px;border-radius:999px;background:linear-gradient(135deg,#e7fbff,#42c7ff);color:#02101c;margin-bottom:18px}.bubble h3{margin:0 0 10px;font-size:20px;line-height:1;letter-spacing:-.03em}.bubble p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}.intake{padding:90px clamp(18px,5vw,72px);background:radial-gradient(circle at 50% 18%,rgba(43,178,255,.2),transparent 30%),linear-gradient(180deg,rgba(2,7,18,.1),rgba(2,7,18,.55))}.intake-shell{width:min(980px,100%);margin:0 auto}.card{width:100%;border:1px solid rgba(101,214,255,.18);border-radius:28px;background:linear-gradient(145deg,rgba(7,20,38,.96),rgba(3,9,20,.96));box-shadow:0 28px 90px rgba(0,0,0,.42),0 0 90px rgba(54,200,255,.12);padding:clamp(24px,4vw,44px);position:relative}.card h2{margin:0 0 12px;font-size:clamp(36px,5vw,62px);line-height:.94;letter-spacing:-.065em}.card p{margin:0 0 24px;color:var(--muted);line-height:1.65}.step-meta{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:32px;color:var(--cyan);font-size:12px;font-weight:950;letter-spacing:.2em;text-transform:uppercase}.progress{width:178px;height:7px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08)}.progress span{display:block;width:20%;height:100%;background:linear-gradient(90deg,#e7fbff,var(--cyan));border-radius:inherit;transition:width .35s ease}.question{margin:0 0 28px;font-size:clamp(40px,6.5vw,82px);line-height:.9;letter-spacing:-.075em}.options{display:grid;gap:12px;margin-top:28px}.choice{width:100%;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(122,216,255,.18);border-radius:18px;padding:18px 20px;background:rgba(255,255,255,.055);color:var(--ink);font:inherit;font-weight:950;text-align:left;cursor:pointer}.choice span{color:var(--cyan);font-size:24px}.actions{display:flex;justify-content:space-between;gap:14px;margin-top:26px}.fields,.contact-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}input,textarea,select{width:100%;border:1px solid rgba(122,216,255,.18);border-radius:16px;padding:16px 17px;font:inherit;color:var(--ink);background:rgba(255,255,255,.055);outline:none}input::placeholder,textarea::placeholder{color:#6f8599}textarea{min-height:142px;resize:vertical;line-height:1.55}select option{color:#05101b}.member-card{display:none}.member-badge{display:inline-flex;color:var(--gold);border:1px solid rgba(240,165,0,.25);background:rgba(240,165,0,.07);border-radius:999px;padding:8px 13px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:950;margin-bottom:18px}.member-card.active{display:block}.question-card.hidden{display:none}.logo-fallback{display:none}@media(max-width:1050px){.bubbles{grid-template-columns:1fr 1fr}.bubble{border-radius:32px}.bubble:last-child{grid-column:1/-1}.studio-panels{grid-template-columns:1fr}.studio-panel{border-right:0;border-bottom:1px solid var(--line)}}@media(max-width:900px){.topbar{height:auto;align-items:flex-start;flex-direction:column}.navlinks{width:100%;justify-content:space-between}.hero{min-height:auto;padding-top:58px}.hero-logo{margin-bottom:44px}}@media(max-width:620px){.logo-box{width:92px;height:62px}.navlinks a{display:none}.start-btn,.cta,.ghost{width:100%}.fields,.contact-fields{grid-template-columns:1fr}.actions{flex-direction:column-reverse}.bubbles{grid-template-columns:1fr}.bubble{min-height:180px}}
 </style>
 </head>
 <body>
-<nav>
-  <a class="nav-left" href="index.html">
-    <img class="nav-logo-img" src="AI4-approved-logo.png" alt="AI4 logo">
-    <span class="nav-logo-text">
-      <span class="nav-logo-name">AI4 Website Design Studio</span>
-      <span class="nav-logo-sub">Powered by Apropos Group LLC</span>
-    </span>
-  </a>
-  <div class="nav-right">
-    <a class="nav-link" href="#how-it-works">How It Works</a>
-    <a class="nav-link" href="#design-systems">Design Systems</a>
-    <a class="nav-cta" href="signup.html">Start Building →</a>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="hero-eyebrow"><span class="eyebrow-line"></span>AI4 Website Design Studio — Purpose-First Engine<span class="eyebrow-line r"></span></div>
-  <div class="hero-logo-wrap">
-    <img class="hero-logo-img" src="AI4-approved-logo.png" alt="AI4 Website Design">
-    <svg class="arc-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 540" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <defs>
-        <linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1a1a28"/><stop offset="20%" stop-color="#7a8a9e"/><stop offset="45%" stop-color="#c8d8e8"/><stop offset="55%" stop-color="#eef8ff"/><stop offset="75%" stop-color="#a9bed2"/><stop offset="100%" stop-color="#1a1a28"/></linearGradient>
-        <linearGradient id="blueGlow" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#010a1c"/><stop offset="30%" stop-color="#0860b8"/><stop offset="55%" stop-color="#1ea7ff"/><stop offset="75%" stop-color="#5bd3ff"/><stop offset="100%" stop-color="#010a1c"/></linearGradient>
-        <filter id="engrave"><feDropShadow dx="0" dy="2" stdDeviation="1.3" flood-color="#000" flood-opacity="1"/></filter>
-        <filter id="softGlow"><feGaussianBlur stdDeviation="3.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <path id="arc" d="M 118,374 Q 188,44 550,42 Q 912,44 982,374"/>
-      </defs>
-      <text font-family="Georgia,'Times New Roman',serif" font-size="43" font-weight="700" letter-spacing="8" fill="#000810" filter="url(#engrave)"><textPath href="#arc" startOffset="50%" text-anchor="middle">AI4 WEBSITE DESIGN STUDIO</textPath></text>
-      <text font-family="Georgia,'Times New Roman',serif" font-size="43" font-weight="700" letter-spacing="8" fill="url(#silver)"><textPath href="#arc" startOffset="50%" text-anchor="middle">AI4 WEBSITE DESIGN STUDIO</textPath></text>
-      <text font-family="Georgia,'Times New Roman',serif" font-size="43" font-weight="700" letter-spacing="8" fill="rgba(255,255,255,0.38)"><textPath href="#arc" startOffset="50%" text-anchor="middle">AI4 WEBSITE DESIGN STUDIO</textPath></text>
-      <line x1="170" y1="466" x2="398" y2="466" stroke="url(#blueGlow)" stroke-width="1" filter="url(#softGlow)" opacity="0.55"/>
-      <line x1="702" y1="466" x2="930" y2="466" stroke="url(#blueGlow)" stroke-width="1" filter="url(#softGlow)" opacity="0.55"/>
-    </svg>
-  </div>
-
-  <h1 class="hero-h1">You direct the build.<br><span class="grad">We launch it same day.</span></h1>
-  <p class="hero-sub">Tell us your purpose. Our AI design engine builds a creative brief, selects a matching design system, and scores it through a quality gate — before a single template is chosen.</p>
-  <div class="hero-actions">
-    <a class="btn-primary" href="signup.html">Start Building My Website →</a>
-    <a class="btn-ghost" href="#how-it-works">See How It Works</a>
-  </div>
-  <div class="hero-proof">
-    <div class="proof-item"><span class="proof-dot"></span>17 website purposes</div>
-    <div class="proof-item"><span class="proof-dot"></span>12 design systems</div>
-    <div class="proof-item"><span class="proof-dot"></span>AI quality gate</div>
-    <div class="proof-item"><span class="proof-dot"></span>Same-day launch</div>
-  </div>
-</section>
-
-<section class="section" id="how-it-works">
-  <div class="section-inner">
-    <div class="section-eyebrow">The AI4 Design Engine</div>
-    <h2 class="section-title">Purpose → Brief → System → Quality Gate</h2>
-    <p class="section-sub">Six AI agents work in sequence to produce a premium, purpose-built design direction. No generic templates. No guesswork.</p>
-    <div class="divider"></div>
-    <div class="flow-steps">
-      <div class="flow-step"><div class="step-num">Agent 01</div><span class="step-icon">🎯</span><div class="step-name">Purpose Classifier</div><div class="step-desc">Analyzes your website goal, audience, and intent to establish a site category and content priorities.</div></div>
-      <div class="flow-step"><div class="step-num">Agent 02</div><span class="step-icon">🎨</span><div class="step-name">Design Director</div><div class="step-desc">Selects a creative direction and recommends the matching design system based on your impression and audience.</div></div>
-      <div class="flow-step"><div class="step-num">Agent 03</div><span class="step-icon">📐</span><div class="step-name">Content Architect</div><div class="step-desc">Plans your site sections, section order, headline direction, and CTA hierarchy.</div></div>
-      <div class="flow-step"><div class="step-num">Agent 04</div><span class="step-icon">🖌️</span><div class="step-name">Visual Identity</div><div class="step-desc">Defines color mood, typography direction, layout rhythm, and the visual motif for your design system.</div></div>
-      <div class="flow-step"><div class="step-num">Agent 05</div><span class="step-icon">⚡</span><div class="step-name">Template Matcher</div><div class="step-desc">Matches your design brief to the correct design system and configures the preview direction.</div></div>
-      <div class="flow-step"><div class="step-num">Agent 06</div><span class="step-icon">✦</span><div class="step-name">Quality Gate</div><div class="step-desc">Scores your design direction against 10 premium criteria. Only approved directions proceed to preview.</div></div>
+<header class="topbar" id="mainTopbar">
+  <div class="brand">
+    <div class="logo-box">
+      <img src="logo.png" alt="AI4 Website Design" class="brand-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+      <div class="logo-fallback">AI4</div>
     </div>
+    <div class="brand-copy"><strong>AI4 Website Design Studio</strong><small>Powered by Apropos Group LLC</small></div>
   </div>
-</section>
-
-<section class="section" id="design-systems" style="padding-top:0">
-  <div class="section-inner">
-    <div class="section-eyebrow">Design System Library</div>
-    <h2 class="section-title">12 Distinct Design Systems</h2>
-    <p class="section-sub">Each system has a different structural DNA — not just a color swap. The AI selects the system that matches your purpose.</p>
-    <div class="divider"></div>
-    <div class="systems-grid">
-      <div class="system-card"><div class="sys-badge">Luxury</div><div class="sys-name">Luxury Reveal</div><div class="sys-desc">Cinematic hero, elegant typography, spacious premium layout.</div><div class="sys-tags"><span class="sys-tag">Luxury services</span><span class="sys-tag">Real estate</span></div></div>
-      <div class="system-card"><div class="sys-badge">Authority</div><div class="sys-name">Executive Presence</div><div class="sys-desc">Editorial hero, trust-building sections, clean metrics layout.</div><div class="sys-tags"><span class="sys-tag">Business leaders</span><span class="sys-tag">B2B</span></div></div>
-      <div class="system-card"><div class="sys-badge">Creative</div><div class="sys-name">Cinematic Portfolio</div><div class="sys-desc">Full-screen visual entry, large project panels, motion rhythm.</div><div class="sys-tags"><span class="sys-tag">Designers</span><span class="sys-tag">Photographers</span></div></div>
-      <div class="system-card"><div class="sys-badge">Editorial</div><div class="sys-name">Digital Magazine</div><div class="sys-desc">Editorial grid, featured story section, magazine typography.</div><div class="sys-tags"><span class="sys-tag">Blogs</span><span class="sys-tag">Publications</span></div></div>
-      <div class="system-card"><div class="sys-badge">Creator</div><div class="sys-name">Creator Spotlight</div><div class="sys-desc">Personal hero, social proof bar, featured content modules.</div><div class="sys-tags"><span class="sys-tag">Influencers</span><span class="sys-tag">Podcasters</span></div></div>
-      <div class="system-card"><div class="sys-badge">Personal</div><div class="sys-name">Personal Brand Authority</div><div class="sys-desc">Strong personal hero, bio story, authority blocks.</div><div class="sys-tags"><span class="sys-tag">Coaches</span><span class="sys-tag">Speakers</span></div></div>
-      <div class="system-card"><div class="sys-badge">Launch</div><div class="sys-name">Product Launch</div><div class="sys-desc">Conversion-first hero, benefit cards, feature reveal, pricing CTA.</div><div class="sys-tags"><span class="sys-tag">SaaS</span><span class="sys-tag">App launches</span></div></div>
-      <div class="system-card"><div class="sys-badge">Event</div><div class="sys-name">Event Invitation</div><div class="sys-desc">Date-forward hero, event details, agenda timeline, RSVP block.</div><div class="sys-tags"><span class="sys-tag">Conferences</span><span class="sys-tag">Weddings</span></div></div>
-      <div class="system-card"><div class="sys-badge">Cause</div><div class="sys-name">Nonprofit Story</div><div class="sys-desc">Human story hero, mission section, impact stats, donation CTA.</div><div class="sys-tags"><span class="sys-tag">Nonprofits</span><span class="sys-tag">Causes</span></div></div>
-      <div class="system-card"><div class="sys-badge">Artistic</div><div class="sys-name">Artist Showcase</div><div class="sys-desc">Expressive visual hero, gallery, featured work, performance blocks.</div><div class="sys-tags"><span class="sys-tag">Musicians</span><span class="sys-tag">Artists</span></div></div>
-      <div class="system-card"><div class="sys-badge">Local</div><div class="sys-name">Modern Trust</div><div class="sys-desc">Clean trust-first hero, service explanation, reviews, contact CTA.</div><div class="sys-tags"><span class="sys-tag">Local services</span><span class="sys-tag">Small business</span></div></div>
-      <div class="system-card"><div class="sys-badge">Tech</div><div class="sys-name">Futuristic Interface</div><div class="sys-desc">Dark interface feel, grid overlays, neon accents, data-card layout.</div><div class="sys-tags"><span class="sys-tag">AI products</span><span class="sys-tag">Tech tools</span></div></div>
+  <nav class="navlinks"><a href="#difference">Why AI4</a><a href="#process">Process</a><button class="start-btn" id="topStart" type="button">Start Building</button></nav>
+</header>
+<main id="landing">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">AI4 Website Design Studio — Purpose-First Engine</div>
+      <div class="hero-logo">
+        <img src="logo.png" alt="AI4 Website Design" class="hero-logo-img">
+      </div>
+      <h1 class="headline">A Platinum Presence <span>Online.</span><br>Built Today. Launched Today.</h1>
+      <p class="subline">Most websites simply exist. The right website creates perception. AI4 builds purpose-driven digital experiences designed to help businesses, professionals, and creators stand apart from the ordinary.</p>
+      <div class="hero-actions"><button class="cta" id="heroStart" type="button">Start Building</button><a class="ghost" href="#difference">Why AI4 Is Different</a></div>
     </div>
-  </div>
-</section>
-
-<section class="section" style="padding-top:0">
-  <div class="section-inner">
-    <div class="section-eyebrow">Why AI4 Website Design</div>
-    <h2 class="section-title">Not a template builder. A design engine.</h2>
-    <p class="section-sub">The difference between a website that converts and one that sits there is design intent. AI4 builds intent first.</p>
-    <div class="divider"></div>
-    <div class="why-grid">
-      <div class="why-card"><span class="why-icon">🎯</span><div class="why-title">Purpose-first intake</div><div class="why-desc">17 website purposes. The system never forces you into a generic business-site pattern.</div></div>
-      <div class="why-card"><span class="why-icon">🤖</span><div class="why-title">AI creative direction</div><div class="why-desc">Six AI agents analyze your answers and produce a structured design brief before any template is selected.</div></div>
-      <div class="why-card"><span class="why-icon">✦</span><div class="why-title">Built-in quality gate</div><div class="why-desc">10 premium criteria scored before output is approved. Low-end output is flagged automatically.</div></div>
-      <div class="why-card"><span class="why-icon">🖼️</span><div class="why-title">12 structural design systems</div><div class="why-desc">Each system has a different layout DNA — different structure, rhythm, and visual signature.</div></div>
-      <div class="why-card"><span class="why-icon">⚡</span><div class="why-title">Same-day launch path</div><div class="why-desc">From brief approval to live site in one session. The design engine removes the guesswork.</div></div>
-      <div class="why-card"><span class="why-icon">🔒</span><div class="why-title">No generic output</div><div class="why-desc">The quality gate exists specifically to prevent boring, similar-looking websites. Premium or nothing.</div></div>
+  </section>
+  <section class="studio-panels" id="difference">
+    <div class="studio-panel"><small>Purpose Before Design</small><h2>We begin with what your site must accomplish.</h2><p>AI4 determines what your website should communicate, prove, and move visitors to do before deciding how it should look.</p></div>
+    <div class="studio-panel"><small>No Templates. No Design Decisions.</small><h2>You never choose colors, fonts, or layouts.</h2><p>The system interprets your goal and creates the most effective presentation automatically, without forcing creative homework on you.</p></div>
+    <div class="studio-panel"><small>Built For Perception</small><h2>Every website is designed to create belief.</h2><p>Trust, credibility, authority, and opportunity are designed into the experience from the first viewport.</p></div>
+  </section>
+  <section class="statement"><h2>Purpose First. Design Second.</h2><p>Most website builders begin with appearance. AI4 begins with strategy: messaging, structure, trust, and conversion. Then the design is built around those foundations, which is why the result feels custom before a single design decision is made.</p></section>
+  <section class="process" id="process">
+    <div class="process-title"><small>The AI4 Build Path</small><h2>Five moves from idea to preview.</h2></div>
+    <div class="bubbles">
+      <div class="bubble"><strong>1</strong><h3>Tell Us What You're Building</h3><p>Choose Business, Personal, or Blog.</p></div>
+      <div class="bubble"><strong>2</strong><h3>Answer 5 Simple Questions</h3><p>No design questions. No technical questions.</p></div>
+      <div class="bubble"><strong>3</strong><h3>Become A Member</h3><p>As a member, you receive your first website FREE.</p></div>
+      <div class="bubble"><strong>4</strong><h3>Review Your Website</h3><p>Preview messaging, structure, and visual direction.</p></div>
+      <div class="bubble"><strong>5</strong><h3>Launch When Ready</h3><p>Select the production path that fits your goals.</p></div>
     </div>
-  </div>
-</section>
-
-<section class="cta-section">
-  <div class="cta-card">
-    <div class="cta-label">Ready to build?</div>
-    <h2 class="cta-title">You direct the build.<br><span class="grad">We launch it same day.</span></h2>
-    <p class="cta-sub">Answer 5 questions. Let the AI4 Design Engine create your brief, select your system, and score your direction — then move forward with a same-day launch path.</p>
-    <div class="hero-actions" style="justify-content:center">
-      <a class="btn-primary" href="signup.html">Start Building My Website →</a>
+  </section>
+  <section class="intake" id="builder">
+    <div class="intake-shell">
+      <div class="card question-card" id="questionCard">
+        <div class="step-meta"><div id="stepCount">Question 1 of 5</div><div class="progress"><span id="progressBar"></span></div></div>
+        <h2 class="question" id="questionText">What should this website promote?</h2>
+        <div id="inputArea"></div>
+        <div class="actions"><button class="ghost" id="backBtn" type="button">Back</button><button class="cta" id="nextBtn" type="button">Continue</button></div>
+      </div>
+      <form class="card member-card" id="memberCard">
+        <div class="member-badge">Member Access</div>
+        <h2>As a member, you get your first website FREE.</h2>
+        <p>Create your member profile to unlock the website preview generated from your answers.</p>
+        <div class="fields"><input id="firstName" type="text" placeholder="First Name" required><input id="lastName" type="text" placeholder="Last Name" required><input class="full" id="email" type="email" placeholder="Email address" required></div>
+        <button class="cta" type="submit">Unlock My Website</button>
+      </form>
     </div>
-  </div>
-</section>
-
-<footer>
-  <a class="footer-logo" href="index.html">
-    <img class="footer-logo-img" src="AI4-approved-logo-transparent.png" alt="AI4 logo">
-    <span class="footer-name">AI4 Website Design Studio</span>
-  </a>
-  <div class="footer-links">
-    <a class="footer-link" href="signup.html">Design Studio</a>
-    <a class="footer-link" href="#how-it-works">How It Works</a>
-    <a class="footer-link" href="#design-systems">Design Systems</a>
-    <a class="footer-link" href="offer.html">Pricing</a>
-  </div>
-  <div class="footer-copy">© 2025 Apropos Group LLC — All rights reserved</div>
-</footer>
+  </section>
+</main>
+<script>
+const flows={Business:["What does your business do?","Who is your ideal customer?","What should visitors trust you to help them with?"],Personal:["What do you want people to know about you?","What are you known for, proud of, or working toward?","What opportunity or impression should this website create for you?"],Blog:["What topics will your blog focus on?","Who do you want your blog to help, inspire, or inform?","What should readers feel or understand after visiting?"]};
+const state={member:{firstName:"",lastName:"",email:""},step:0,purpose:"",answers:{},contact:{email:"",phone:"",form:"Yes, include a contact form",socials:"",cta:"Contact Me"}};
+const $=id=>document.getElementById(id),stepCount=$("stepCount"),progressBar=$("progressBar"),questionText=$("questionText"),inputArea=$("inputArea"),backBtn=$("backBtn"),nextBtn=$("nextBtn"),questionCard=$("questionCard"),memberCard=$("memberCard");
+function setStore(k,v){try{localStorage.setItem(k,v);sessionStorage.setItem(k,v)}catch(e){try{sessionStorage.setItem(k,v)}catch(_){}}}
+function setJson(k,v){setStore(k,JSON.stringify(v))}
+function escapeHtml(v){return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function sentence(v,f){return String(v||"").trim()||f}
+function displayName(){return `${state.member.firstName} ${state.member.lastName}`.trim()||"{{BUSINESS_NAME}}"}
+function scrollBuilder(){document.getElementById('builder').scrollIntoView({behavior:'smooth',block:'start'})}
+["topStart","heroStart"].forEach(id=>$(id).addEventListener("click",scrollBuilder));
+function currentQuestion(){if(state.step===0)return"What should this website promote?";if(state.step>=1&&state.step<=3)return flows[state.purpose][state.step-1];return"How can visitors contact you, and are you promoting yourself on any social media sites?"}
+function render(){stepCount.textContent=`Question ${state.step+1} of 5`;progressBar.style.width=`${((state.step+1)/5)*100}%`;questionText.textContent=currentQuestion();backBtn.style.visibility=state.step===0?"hidden":"visible";nextBtn.textContent=state.step===4?"Submit":"Continue";if(state.step===0){nextBtn.style.display="none";inputArea.innerHTML=`<div class="options">${["Business","Personal","Blog"].map(o=>`<button class="choice" type="button" data-purpose="${o}">${o}<span>→</span></button>`).join("")}</div>`;document.querySelectorAll("[data-purpose]").forEach(b=>b.addEventListener("click",()=>{state.purpose=b.dataset.purpose;state.step=1;render()}));return}nextBtn.style.display="inline-flex";if(state.step>=1&&state.step<=3){const k=`q${state.step+1}`;inputArea.innerHTML=`<textarea id="answerInput" placeholder="Write a simple answer. The system will elevate it behind the scenes.">${escapeHtml(state.answers[k]||"")}</textarea>`;return}inputArea.innerHTML=`<div class="contact-fields"><input id="contactEmail" type="email" placeholder="Email" value="${escapeHtml(state.contact.email)}"><input id="phone" type="tel" placeholder="Phone" value="${escapeHtml(state.contact.phone)}"><select id="formPreference"><option>Yes, include a contact form</option><option>No form, send visitors to email</option><option>No form, send visitors to phone</option></select><input id="ctaText" placeholder="Preferred call-to-action" value="${escapeHtml(state.contact.cta)}"><textarea class="full" id="socials" placeholder="Social media links">${escapeHtml(state.contact.socials)}</textarea></div>`}
+function saveCurrent(){if(state.step>=1&&state.step<=3){const input=$("answerInput");if(input)state.answers[`q${state.step+1}`]=input.value.trim()}if(state.step===4){state.contact.email=$("contactEmail").value.trim();state.contact.phone=$("phone").value.trim();state.contact.form=$("formPreference").value.trim();state.contact.cta=$("ctaText").value.trim()||"Contact Me";state.contact.socials=$("socials").value.trim()}}
+function showMember(){questionCard.classList.add('hidden');memberCard.classList.add('active');memberCard.scrollIntoView({behavior:'smooth',block:'center'})}
+function buildPreviewPayload(){const p=state.purpose,a=state.answers,cta=state.contact.cta||"Contact Me",socials=state.contact.socials.split(/\n|,/).map(x=>x.trim()).filter(Boolean),contactLine=[state.contact.email||state.member.email,state.contact.phone].filter(Boolean).join(" · ")||"{{PHONE}} · hello@example.com";const data={Business:{websiteTitle:displayName(),purpose:p,eyebrow:"AI4 Premium Service Presence",headline:`A more trusted way to ${sentence(a.q4,"move forward with confidence")}.`,subheadline:`${sentence(a.q2,"A specialized professional service")} for ${sentence(a.q3,"discerning customers")}. Designed for clarity, confidence, and a polished experience from first conversation to final result.`,primaryCta:cta,secondaryCta:"View Services",valueStatement:`Focused expertise, elevated presentation, and a service experience built around ${sentence(a.q4,"the outcome that matters most")}.`,aboutCopy:`${displayName()} serves clients who want more than a quick transaction. The work is shaped around careful listening, clear recommendations, and dependable execution for people who value trust as much as results.`,trustHeadline:"Confidence before the conversation.",trustBody:`Trust is built through clarity, follow-through, and practical expertise around ${sentence(a.q4,"the outcome customers care about")}.`,contactHeadline:"Start with a precise next step.",contactBody:"Share what you need, where you are, and what matters most. The next conversation will help clarify the right path forward.",footerLine:"Built by AI4 for trust, clarity, and conversion."},Personal:{websiteTitle:displayName(),purpose:p,eyebrow:"AI4 Personal Signature",headline:"A personal presence with clarity, credibility, and momentum.",subheadline:`${sentence(a.q2,"A refined introduction to the person behind the name")}. Built to help the right people understand the story, the work, and the direction at a glance.`,primaryCta:cta,secondaryCta:"Explore Profile",valueStatement:`A refined digital profile designed to create ${sentence(a.q4,"the right impression and the right opportunities")}.`,aboutCopy:`${sentence(a.q2,"This profile introduces the person, perspective, and work behind the name.")} It highlights ${sentence(a.q3,"the focus, achievements, and ambitions that shape what comes next")} with a polished, opportunity-ready presentation.`,trustHeadline:"A sharper first impression.",trustBody:"Trust is built through a clear point of view, proof of direction, and a polished personal narrative.",contactHeadline:"Open the right door.",contactBody:"For introductions, collaborations, interviews, or opportunities, use the contact details below.",footerLine:"Built by AI4 for identity, credibility, and opportunity."},Blog:{websiteTitle:displayName(),purpose:p,eyebrow:"AI4 Editorial Presence",headline:"Ideas with enough clarity to make readers return.",subheadline:`An editorial destination focused on ${sentence(a.q2,"meaningful topics")}, created for ${sentence(a.q3,"curious readers")}. Built for readers who want perspective without the noise.`,primaryCta:cta,secondaryCta:"Browse Topics",valueStatement:"Clear thinking, useful context, and memorable writing presented with editorial restraint.",aboutCopy:`This publication explores ${sentence(a.q2,"selected topics")} through a calm, thoughtful lens. Every piece is shaped to help readers ${sentence(a.q4,"leave with more clarity than they arrived with")}.`,trustHeadline:"A quieter place for better thinking.",trustBody:"Trust is built through consistency, thoughtful framing, and a calm editorial experience.",contactHeadline:"Read, return, and stay close.",contactBody:"Subscribe, connect, or share a note using the contact details below.",footerLine:"Built by AI4 for topic clarity, readability, and return visits."}}[p];return{...data,contactLine,socials:socials.length?socials.join(" · "):"Social links available upon request",ctaLink:"offer.html"}}
+function buildHtml(d){return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(d.websiteTitle)}</title><style>body{margin:0;font-family:Inter,system-ui;background:#fbf4e8;color:#111}.hero{min-height:90vh;padding:56px;display:grid;align-content:space-between;background:linear-gradient(90deg,rgba(17,17,17,.08) 1px,transparent 1px),linear-gradient(rgba(17,17,17,.08) 1px,transparent 1px),#fbf4e8;background-size:44px 44px}.nav{display:flex;justify-content:space-between;font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:12px}.copy h1{font-family:Georgia,serif;font-size:clamp(52px,9vw,120px);line-height:.86;letter-spacing:-.08em;margin:0 0 24px}.copy p{max-width:680px;color:#5b5145;font-size:21px;line-height:1.6}.cta{display:inline-flex;background:#100d0a;color:#fff1d3;text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:900}.sections{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(17,17,17,.16)}.block{padding:40px;border-right:1px solid rgba(17,17,17,.16)}.block h2{font-family:Georgia,serif;font-size:36px;line-height:1;letter-spacing:-.05em}.block p{color:#5b5145;line-height:1.7}.contact{background:#100d0a;color:#fff4df;padding:60px;display:grid;grid-template-columns:1fr 1fr;gap:30px}.contact h2{font-family:Georgia,serif;font-size:60px;line-height:.95;letter-spacing:-.07em;margin:0}.contact p{color:rgba(255,244,223,.76);line-height:1.7}@media(max-width:760px){.sections,.contact{grid-template-columns:1fr}.hero{padding:28px}.block{border-right:0;border-bottom:1px solid rgba(17,17,17,.16)}}</style></head><body><main><section class="hero"><div class="nav"><div>${escapeHtml(d.websiteTitle)}</div><div>${escapeHtml(d.purpose)} · {{CITY}}</div></div><div class="copy"><div>${escapeHtml(d.eyebrow)}</div><h1>${escapeHtml(d.headline)}</h1><p>${escapeHtml(d.subheadline)}</p><a class="cta" href="#contact">${escapeHtml(d.primaryCta)}</a></div></section><section class="sections"><div class="block"><h2>Built for the right first impression.</h2><p>${escapeHtml(d.valueStatement)}</p></div><div class="block"><h2>Clear, polished, and intentional.</h2><p>${escapeHtml(d.aboutCopy)}</p></div><div class="block"><h2>${escapeHtml(d.trustHeadline)}</h2><p>${escapeHtml(d.trustBody)}</p></div></section><section class="contact" id="contact"><h2>${escapeHtml(d.contactHeadline)}</h2><div><p>${escapeHtml(d.contactBody)}</p><p>${escapeHtml(d.contactLine)}</p><p>${escapeHtml(d.socials)}</p><a class="cta" href="offer.html">Continue</a></div></section></main></body></html>`}
+nextBtn.addEventListener("click",()=>{saveCurrent();setJson("ai4_answers",{purpose:state.purpose,answers:state.answers,contact:state.contact,member:state.member});if(state.step<4){state.step++;render()}else{showMember()}});
+backBtn.addEventListener("click",()=>{saveCurrent();if(state.step>0)state.step--;render()});
+memberCard.addEventListener('submit',e=>{e.preventDefault();state.member.firstName=$("firstName").value.trim();state.member.lastName=$("lastName").value.trim();state.member.email=$("email").value.trim();state.contact.email=state.contact.email||state.member.email;const payload=buildPreviewPayload();const built=buildHtml(payload);setJson("ai4_member",state.member);setJson("fiveKaratPreview",payload);setJson("ai4_site_data",{businessName:payload.websiteTitle,email:state.contact.email,phone:state.contact.phone,purpose:state.purpose});setStore("ai4_email",state.contact.email);setStore("ai4_phone",state.contact.phone);setStore("ai4_name",displayName());setStore("ai4_full_name",displayName());setStore("ai4_built_html",built);window.location.href="Preview.html"});
+render();
+</script>
 </body>
 </html>
