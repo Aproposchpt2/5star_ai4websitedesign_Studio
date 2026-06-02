@@ -657,6 +657,7 @@
   <script>
     const flows = {
       Business: [
+        "What's the name of your Business?",
         "What does your business do?",
         "Who is your ideal customer?",
         "What should visitors trust you to help them with?"
@@ -732,22 +733,30 @@
       return `${state.member.firstName} ${state.member.lastName}`.trim() || "Your Website";
     }
 
+    function totalSteps() {
+      return state.purpose === "Business" ? 6 : 5;
+    }
+
+    function contactStep() {
+      return totalSteps() - 1;
+    }
+
     function scrollBuilder() {
       $("builder").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function currentQuestion() {
       if (state.step === 0) return "What should this website promote?";
-      if (state.step >= 1 && state.step <= 3) return flows[state.purpose][state.step - 1];
+      if (state.step >= 1 && state.step < contactStep()) return flows[state.purpose][state.step - 1];
       return "How can visitors contact you, and are you promoting yourself on any social media sites?";
     }
 
     function render() {
-      stepCount.textContent = `Question ${state.step + 1} of 5`;
-      progressBar.style.width = `${((state.step + 1) / 5) * 100}%`;
+      stepCount.textContent = `Question ${state.step + 1} of ${totalSteps()}`;
+      progressBar.style.width = `${((state.step + 1) / totalSteps()) * 100}%`;
       questionText.textContent = currentQuestion();
       backBtn.style.visibility = state.step === 0 ? "hidden" : "visible";
-      nextBtn.textContent = state.step === 4 ? "Submit" : "Continue";
+      nextBtn.textContent = state.step === contactStep() ? "Submit" : "Continue";
 
       if (state.step === 0) {
         nextBtn.style.display = "none";
@@ -768,9 +777,10 @@
 
       nextBtn.style.display = "inline-flex";
 
-      if (state.step >= 1 && state.step <= 3) {
+      if (state.step >= 1 && state.step < contactStep()) {
         const key = `q${state.step + 1}`;
-        inputArea.innerHTML = `<textarea id="answerInput" placeholder="Write a simple answer.">${escapeHtml(state.answers[key] || "")}</textarea>`;
+        const placeholder = state.purpose === "Business" && state.step === 1 ? "Enter the exact business name." : "Write a simple answer.";
+        inputArea.innerHTML = `<textarea id="answerInput" placeholder="${placeholder}">${escapeHtml(state.answers[key] || "")}</textarea>`;
         $("answerInput").focus({ preventScroll: true });
         return;
       }
@@ -791,12 +801,12 @@
     }
 
     function saveCurrent() {
-      if (state.step >= 1 && state.step <= 3) {
+      if (state.step >= 1 && state.step < contactStep()) {
         const input = $("answerInput");
         if (input) state.answers[`q${state.step + 1}`] = input.value.trim();
       }
 
-      if (state.step === 4) {
+      if (state.step === contactStep()) {
         state.contact.email = $("contactEmail").value.trim();
         state.contact.phone = $("phone").value.trim();
         state.contact.form = $("formPreference").value.trim();
@@ -996,13 +1006,31 @@
       };
     }
 
-    function getDesignSystem(purpose, answers, cta) {
-      const input = {
+    function getIntakeProfile(purpose, answers) {
+      if (purpose === "Business") {
+        return {
+          brandName: sentence(answers.q2, "Your Business"),
+          description: sentence(answers.q3, "a specialized professional service"),
+          audience: sentence(answers.q4, "discerning customers"),
+          outcome: sentence(answers.q5, "move forward with confidence")
+        };
+      }
+
+      return {
         brandName: displayName(),
+        description: sentence(answers.q2, purpose === "Blog" ? "meaningful topics" : "a refined introduction"),
+        audience: sentence(answers.q3, purpose === "Blog" ? "curious readers" : "the right audience"),
+        outcome: sentence(answers.q4, purpose === "Blog" ? "leave with more clarity than they arrived with" : "the right impression and the right opportunities")
+      };
+    }
+
+    function getDesignSystem(purpose, profile, cta) {
+      const input = {
+        brandName: profile.brandName,
         purpose,
-        description: sentence(answers.q2, "a stronger online presence"),
-        audience: sentence(answers.q3, "the right audience"),
-        outcome: sentence(answers.q4, "a clear next step"),
+        description: profile.description,
+        audience: profile.audience,
+        outcome: profile.outcome,
         cta
       };
       const seed = hashText(`${Date.now()}|${Math.random()}|${input.brandName}|${input.purpose}|${input.description}|${input.audience}|${input.outcome}`);
@@ -1035,6 +1063,7 @@
       const purpose = state.purpose || "Business";
       const answers = state.answers;
       const cta = state.contact.cta || "Contact Me";
+      const profile = getIntakeProfile(purpose, answers);
       const socials = state.contact.socials
         .split(/\n|,/)
         .map(item => item.trim())
@@ -1042,18 +1071,18 @@
       const contactLine = [state.contact.email || state.member.email, state.contact.phone]
         .filter(Boolean)
         .join(" | ") || "hello@example.com | {{PHONE}}";
-      const system = getDesignSystem(purpose, answers, cta);
+      const system = getDesignSystem(purpose, profile, cta);
 
       const content = {
         Business: {
-          websiteTitle: displayName(),
+          websiteTitle: profile.brandName,
           eyebrow: "AI4 Premium Service Presence",
-          headline: `A more trusted way to ${sentence(answers.q4, "move forward with confidence")}.`,
-          subheadline: `${sentence(answers.q2, "A specialized professional service")} for ${sentence(answers.q3, "discerning customers")}. Designed for clarity, confidence, and a polished experience from first conversation to final result.`,
-          valueStatement: `Focused expertise, elevated presentation, and a service experience built around ${sentence(answers.q4, "the outcome that matters most")}.`,
-          aboutCopy: `${displayName()} serves clients who want more than a quick transaction. The work is shaped around careful listening, clear recommendations, and dependable execution.`,
+          headline: `A more trusted way to ${profile.outcome}.`,
+          subheadline: `${profile.description} for ${profile.audience}. Designed for clarity, confidence, and a polished experience from first conversation to final result.`,
+          valueStatement: `Focused expertise, elevated presentation, and a service experience built around ${profile.outcome}.`,
+          aboutCopy: `${profile.brandName} serves clients who want more than a quick transaction. The work is shaped around careful listening, clear recommendations, and dependable execution.`,
           trustHeadline: "Confidence before the conversation.",
-          trustBody: `Trust is built through clarity, follow-through, and practical expertise around ${sentence(answers.q4, "the outcome customers care about")}.`,
+          trustBody: `Trust is built through clarity, follow-through, and practical expertise around ${profile.outcome}.`,
           contactHeadline: "Start with a precise next step.",
           contactBody: "Share what you need, where you are, and what matters most. The next conversation will help clarify the right path forward.",
           footerLine: "Built by AI4 for trust, clarity, and conversion."
@@ -1131,6 +1160,10 @@
           <h2>${escapeHtml(item.title)}</h2>
           <p>${escapeHtml(item.body)}</p>
         </article>`).join("");
+      const brandDominance = data.purpose === "Business"
+        ? `<div class="brand-dominant">${escapeHtml(data.websiteTitle)}</div>`
+        : "";
+      const brandFocus = data.purpose === "Business" ? "true" : "false";
 
       return `<!DOCTYPE html>
 <html lang="en">
@@ -1140,15 +1173,15 @@
 <title>${escapeHtml(data.websiteTitle)}</title>
 <!-- AI4_AGENT_DIRECTIVE: custom concept, unique section rhythm, no Squarespace-style template execution. -->
 <style>
-:root{--paper:${escapeHtml(palette.paper || "#fff5df")};--ink:${escapeHtml(palette.ink || "#17110c")};--muted:${escapeHtml(palette.muted || "#655a4c")};--dark:${escapeHtml(palette.dark || "#100d0a")};--accent:${escapeHtml(palette.accent || "#c89b4f")};--signal:${escapeHtml(palette.signal || "#4ec9f5")};--soft:${escapeHtml(palette.soft || "#f4e5c7")};--line:color-mix(in srgb,var(--ink) 16%,transparent)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 82% 16%,color-mix(in srgb,var(--signal) 18%,transparent),transparent 34%),radial-gradient(circle at 8% 86%,color-mix(in srgb,var(--accent) 17%,transparent),transparent 30%),linear-gradient(90deg,color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),var(--paper);background-size:auto,auto,46px 46px,46px 46px,auto}.hero{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.hero:before{content:"";position:absolute;inset:15vh -15vw auto auto;width:48vw;height:48vw;min-width:300px;min-height:300px;border:1px solid color-mix(in srgb,var(--accent) 62%,transparent);border-radius:50%;box-shadow:inset 0 0 0 8vw color-mix(in srgb,var(--signal) 8%,transparent),0 0 130px color-mix(in srgb,var(--signal) 18%,transparent);pointer-events:none}.hero:after{content:"";position:absolute;left:clamp(22px,6vw,82px);right:clamp(22px,6vw,82px);bottom:30px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:1}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.hero-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end;position:relative;z-index:1}.kicker{color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:950;margin-bottom:22px}.copy h1{font-family:Georgia,serif;font-size:clamp(46px,7.2vw,98px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:980px}.copy p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent)}.signature small,.proof-item small,.experience-card small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p{margin:0;color:var(--muted);line-height:1.65}.proof{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-item{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-item:last-child{border-right:0}.proof-item h2,.experience-card h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:26px 0 16px}.proof-item p,.experience-card p{color:var(--muted);line-height:1.7;margin:0}.experience{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.experience-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.experience-card:nth-child(2n){transform:translateY(36px)}.experience-card:nth-child(3n){grid-column:span 5}.experience-card:nth-child(4n){grid-column:span 7}.experience-card:after{content:"";position:absolute;right:-18%;bottom:-20%;width:62%;aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,var(--signal) 12%,transparent);filter:blur(12px)}.experience-card>*{position:relative;z-index:1}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:42px;color:var(--ink)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.footerline{margin-top:34px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}[data-layout="private-index"] .hero-grid{grid-template-columns:.72fr 1fr;align-items:center}[data-layout="private-index"] .copy{order:2}[data-layout="private-index"] .signature{order:1}[data-layout="signal-atlas"] .hero-grid{grid-template-columns:1fr .55fr}[data-layout="signal-atlas"] .signature{border-radius:8px}[data-layout="editorial-arc"] .proof{grid-template-columns:.8fr 1.2fr 1fr}[data-layout="editorial-arc"] .copy h1{max-width:1180px}[data-layout="showroom-grid"] .experience-card{border-radius:8px}[data-layout="founder-field"] .hero-grid{grid-template-columns:1fr .7fr}[data-layout="founder-field"] .signature{background:var(--dark);color:var(--paper)}[data-layout="founder-field"] .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}@media(max-width:900px){.hero-grid,.proof,.contact,[data-layout] .hero-grid{grid-template-columns:1fr}.proof-item{border-right:0;border-bottom:1px solid var(--line)}.experience{grid-template-columns:1fr}.experience-card,.experience-card:nth-child(3n),.experience-card:nth-child(4n){grid-column:auto}.experience-card:nth-child(2n){transform:none}}@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.hero{min-height:86vh}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.hero:before{right:-45vw}.signature{border-radius:18px}.experience-card{min-height:240px}}
+:root{--paper:${escapeHtml(palette.paper || "#fff5df")};--ink:${escapeHtml(palette.ink || "#17110c")};--muted:${escapeHtml(palette.muted || "#655a4c")};--dark:${escapeHtml(palette.dark || "#100d0a")};--accent:${escapeHtml(palette.accent || "#c89b4f")};--signal:${escapeHtml(palette.signal || "#4ec9f5")};--soft:${escapeHtml(palette.soft || "#f4e5c7")};--line:color-mix(in srgb,var(--ink) 16%,transparent)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 82% 16%,color-mix(in srgb,var(--signal) 18%,transparent),transparent 34%),radial-gradient(circle at 8% 86%,color-mix(in srgb,var(--accent) 17%,transparent),transparent 30%),linear-gradient(90deg,color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),var(--paper);background-size:auto,auto,46px 46px,46px 46px,auto}.hero{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.hero:before{content:"";position:absolute;inset:15vh -15vw auto auto;width:48vw;height:48vw;min-width:300px;min-height:300px;border:1px solid color-mix(in srgb,var(--accent) 62%,transparent);border-radius:50%;box-shadow:inset 0 0 0 8vw color-mix(in srgb,var(--signal) 8%,transparent),0 0 130px color-mix(in srgb,var(--signal) 18%,transparent);pointer-events:none}.hero:after{content:"";position:absolute;left:clamp(22px,6vw,82px);right:clamp(22px,6vw,82px);bottom:30px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:1}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.hero-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end;position:relative;z-index:1}.kicker{color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:950;margin-bottom:22px}.brand-dominant{font-family:Georgia,serif;font-size:clamp(70px,11vw,160px);line-height:.78;letter-spacing:-.08em;max-width:980px;margin:0 0 22px;color:var(--ink)}.copy h1{font-family:Georgia,serif;font-size:clamp(46px,7.2vw,98px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:980px}.copy p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent)}.signature small,.proof-item small,.experience-card small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p{margin:0;color:var(--muted);line-height:1.65}.proof{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-item{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-item:last-child{border-right:0}.proof-item h2,.experience-card h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:26px 0 16px}.proof-item p,.experience-card p{color:var(--muted);line-height:1.7;margin:0}.experience{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.experience-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.experience-card:nth-child(2n){transform:translateY(36px)}.experience-card:nth-child(3n){grid-column:span 5}.experience-card:nth-child(4n){grid-column:span 7}.experience-card:after{content:"";position:absolute;right:-18%;bottom:-20%;width:62%;aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,var(--signal) 12%,transparent);filter:blur(12px)}.experience-card>*{position:relative;z-index:1}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:42px;color:var(--ink)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.footerline{margin-top:34px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}[data-brand-focus="true"] .hero-grid{grid-template-columns:minmax(0,1fr) minmax(270px,.34fr)}[data-brand-focus="true"] .copy h1{font-size:clamp(30px,3.8vw,56px);line-height:1;letter-spacing:-.04em;max-width:760px}[data-layout="private-index"] .hero-grid{grid-template-columns:.72fr 1fr;align-items:center}[data-layout="private-index"] .copy{order:2}[data-layout="private-index"] .signature{order:1}[data-layout="signal-atlas"] .hero-grid{grid-template-columns:1fr .55fr}[data-layout="signal-atlas"] .signature{border-radius:8px}[data-layout="editorial-arc"] .proof{grid-template-columns:.8fr 1.2fr 1fr}[data-layout="editorial-arc"] .copy h1{max-width:1180px}[data-layout="showroom-grid"] .experience-card{border-radius:8px}[data-layout="founder-field"] .hero-grid{grid-template-columns:1fr .7fr}[data-layout="founder-field"] .signature{background:var(--dark);color:var(--paper)}[data-layout="founder-field"] .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}@media(max-width:900px){.hero-grid,.proof,.contact,[data-layout] .hero-grid,[data-brand-focus="true"] .hero-grid{grid-template-columns:1fr}.proof-item{border-right:0;border-bottom:1px solid var(--line)}.experience{grid-template-columns:1fr}.experience-card,.experience-card:nth-child(3n),.experience-card:nth-child(4n){grid-column:auto}.experience-card:nth-child(2n){transform:none}}@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.hero{min-height:86vh}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.hero:before{right:-45vw}.signature{border-radius:18px}.brand-dominant{font-size:clamp(54px,16vw,86px)}.experience-card{min-height:240px}}
 </style>
 </head>
 <body>
-<main class="page" data-layout="${escapeHtml(data.layoutClass || "split-axis")}">
+<main class="page" data-layout="${escapeHtml(data.layoutClass || "split-axis")}" data-brand-focus="${brandFocus}">
 <section class="hero">
 <nav><div>${escapeHtml(data.websiteTitle)}</div><div class="badge">${escapeHtml(data.purpose)} Website | {{CITY}}</div></nav>
 <div class="hero-grid">
-<div class="copy"><div class="kicker">${escapeHtml(data.eyebrow)}</div><h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p><div class="actions"><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><a class="secondary" href="#experience">${escapeHtml(data.secondaryCta)}</a></div></div>
+<div class="copy"><div class="kicker">${escapeHtml(data.eyebrow)}</div>${brandDominance}<h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p><div class="actions"><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><a class="secondary" href="#experience">${escapeHtml(data.secondaryCta)}</a></div></div>
 <aside class="signature"><small>${escapeHtml(data.designSystem || "AI4 Custom System")}</small><strong>${escapeHtml(data.conceptLane || "Purpose-built direction")}</strong><p>${escapeHtml(data.visualSignature || "A custom visual signature built from the intake.")}</p></aside>
 </div>
 </section>
@@ -1164,7 +1197,7 @@
 
     nextBtn.addEventListener("click", () => {
       saveCurrent();
-      if (state.step < 4) {
+      if (state.step < contactStep()) {
         state.step += 1;
         render();
       } else {
