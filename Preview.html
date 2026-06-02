@@ -976,6 +976,12 @@
         vars: { paper: "#f5f8ff", ink: "#0a1020", muted: "#5e6a7d", dark: "#030816", accent: "#1ea7ff", signal: "#5bd3ff", soft: "#e8f2ff" }
       },
       {
+        id: "light-professional",
+        name: "Light & Professional",
+        swatches: ["#ffffff", "#2563eb", "#60a5fa"],
+        vars: { paper: "#ffffff", ink: "#0f172a", muted: "#64748b", dark: "#071225", accent: "#2563eb", signal: "#60a5fa", soft: "#f1f5f9" }
+      },
+      {
         id: "obsidian-silver",
         name: "Obsidian Silver",
         swatches: ["#090d14", "#dbe7f5", "#7ab8ff"],
@@ -1202,7 +1208,8 @@
       setText("title", title);
       setText("previewTitle", title);
       setText("summary", data.subheadline || data.contactBody || "A purpose-built website preview created from the intake.");
-      setText("designSystem", data.purpose === "Business" ? `${title} leads the homepage.` : `${data.purpose || "Website"} preview`);
+      const styleLine = data.styleLabel ? ` Style: ${data.styleLabel}.` : "";
+      setText("designSystem", data.purpose === "Business" ? `${title} leads the homepage.${styleLine}` : `${data.purpose || "Website"} preview.${styleLine}`);
       setText("visualSignature", data.headline || data.visualSignature || "The homepage message is ready for review.");
       setText("contactLine", data.contactLine || "Available in the generated site");
       setText("ctaLine", data.primaryCta || "Ready for review");

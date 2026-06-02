@@ -489,6 +489,51 @@
       flex: 0 0 auto;
     }
 
+    .style-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .style-choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(122, 216, 255, .2);
+      background: rgba(255, 255, 255, .05);
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 950;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .style-choice:hover,
+    .style-choice.active {
+      color: var(--ink);
+      border-color: rgba(155, 238, 255, .62);
+      background: rgba(255, 255, 255, .09);
+      box-shadow: 0 0 0 1px rgba(155, 238, 255, .18), 0 18px 46px rgba(21, 140, 255, .12);
+    }
+
+    .style-choice .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      background: var(--dot, var(--cyan));
+      box-shadow: 0 0 18px color-mix(in srgb, var(--dot, var(--cyan)) 70%, transparent);
+    }
+
+    .style-note {
+      margin: -8px 0 24px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
     .fields, .contact-fields {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -703,10 +748,38 @@
       ]
     };
 
+    const styleOptions = [
+      {
+        id: "dark-premium",
+        name: "Dark & Premium",
+        dot: "#1EA7FF",
+        description: "High-contrast, cinematic, and premium."
+      },
+      {
+        id: "light-professional",
+        name: "Light & Professional",
+        dot: "#2563EB",
+        description: "Clean, bright, credible, and boardroom-ready."
+      },
+      {
+        id: "bold-energetic",
+        name: "Bold & Energetic",
+        dot: "#FF6B35",
+        description: "Vivid, active, and momentum-driven."
+      },
+      {
+        id: "warm-trustworthy",
+        name: "Warm & Trustworthy",
+        dot: "#C4892A",
+        description: "Approachable, grounded, and relationship-led."
+      }
+    ];
+
     const state = {
       member: { firstName: "", lastName: "", email: "" },
       step: 0,
       purpose: "",
+      style: "dark-premium",
       answers: {},
       contact: {
         email: "",
@@ -771,11 +844,19 @@
     }
 
     function totalSteps() {
-      return state.purpose === "Business" ? 6 : 5;
+      return state.purpose === "Business" ? 7 : 6;
     }
 
     function contactStep() {
+      return totalSteps() - 2;
+    }
+
+    function styleStep() {
       return totalSteps() - 1;
+    }
+
+    function selectedStyle() {
+      return styleOptions.find(option => option.id === state.style) || styleOptions[0];
     }
 
     function scrollBuilder() {
@@ -785,7 +866,19 @@
     function currentQuestion() {
       if (state.step === 0) return "What should this website promote?";
       if (state.step >= 1 && state.step < contactStep()) return flows[state.purpose][state.step - 1];
+      if (state.step === styleStep()) return "Choose your style direction.";
       return "How can visitors contact you, and are you promoting yourself on any social media sites?";
+    }
+
+    function choosePurpose(option) {
+      state.purpose = option;
+      state.step = 1;
+      render();
+    }
+
+    function chooseStyle(styleId) {
+      state.style = styleId;
+      render();
     }
 
     function render() {
@@ -793,22 +886,14 @@
       progressBar.style.width = `${((state.step + 1) / totalSteps()) * 100}%`;
       questionText.textContent = currentQuestion();
       backBtn.style.visibility = state.step === 0 ? "hidden" : "visible";
-      nextBtn.textContent = state.step === contactStep() ? "Submit" : "Continue";
+      nextBtn.textContent = state.step === styleStep() ? "Submit" : "Continue";
 
       if (state.step === 0) {
         nextBtn.style.display = "none";
         inputArea.innerHTML = `<div class="options">${["Business", "Personal", "Blog"].map(option => `
-          <button class="choice" type="button" data-purpose="${option}">
+          <button class="choice" type="button" data-purpose="${option}" onclick="choosePurpose('${option}')">
             ${option}<span aria-hidden="true">&rarr;</span>
           </button>`).join("")}</div>`;
-
-        document.querySelectorAll("[data-purpose]").forEach(button => {
-          button.addEventListener("click", () => {
-            state.purpose = button.dataset.purpose;
-            state.step = 1;
-            render();
-          });
-        });
         return;
       }
 
@@ -822,7 +907,8 @@
         return;
       }
 
-      inputArea.innerHTML = `
+      if (state.step === contactStep()) {
+        inputArea.innerHTML = `
         <div class="contact-fields">
           <input id="contactEmail" type="email" placeholder="Email" value="${escapeHtml(state.contact.email)}" />
           <input id="phone" type="tel" placeholder="Phone" value="${escapeHtml(state.contact.phone)}" />
@@ -834,7 +920,19 @@
           <input id="ctaText" placeholder="Preferred call-to-action" value="${escapeHtml(state.contact.cta)}" />
           <textarea class="full" id="socials" placeholder="Social media links">${escapeHtml(state.contact.socials)}</textarea>
         </div>`;
-      $("formPreference").value = state.contact.form;
+        $("formPreference").value = state.contact.form;
+        return;
+      }
+
+      inputArea.innerHTML = `
+        <p class="style-note">This does not force a template. It gives the agents a visual direction while the site structure still emerges from the user's goal.</p>
+        <div class="style-options" role="radiogroup" aria-label="Website style direction">
+          ${styleOptions.map(option => `
+            <button class="style-choice ${option.id === state.style ? "active" : ""}" type="button" role="radio" aria-checked="${option.id === state.style ? "true" : "false"}" data-style-choice="${option.id}" onclick="chooseStyle('${option.id}')" style="--dot:${option.dot}">
+              <span class="dot" aria-hidden="true"></span>${escapeHtml(option.name)}
+            </button>`).join("")}
+        </div>
+        <p class="style-note">${escapeHtml(selectedStyle().description)}</p>`;
     }
 
     function saveCurrent() {
@@ -983,8 +1081,30 @@
       }).sort((a, b) => b.score - a.score);
     }
 
-    function buildPalette(seed, concept) {
-      const palettes = [
+    function buildPalette(seed, concept, styleId) {
+      const stylePalettes = {
+        "dark-premium": [
+          { paper: "#0b111c", ink: "#eef5ff", muted: "#98a9bc", dark: "#02050a", accent: "#7fc9ff", signal: "#f0d28a", soft: "#111d2d" },
+          { paper: "#111015", ink: "#f5edf2", muted: "#b4a7ae", dark: "#050407", accent: "#d6789b", signal: "#7bd1c6", soft: "#1d1920" },
+          { paper: "#111319", ink: "#f4f7fb", muted: "#9ba8ba", dark: "#05070d", accent: "#8bb8ff", signal: "#d8e8f5", soft: "#1a202b" }
+        ],
+        "light-professional": [
+          { paper: "#ffffff", ink: "#0f172a", muted: "#64748b", dark: "#071225", accent: "#2563eb", signal: "#60a5fa", soft: "#f1f5f9" },
+          { paper: "#f8fafc", ink: "#111827", muted: "#5f6f86", dark: "#0b1220", accent: "#1d4ed8", signal: "#14b8a6", soft: "#eaf1fb" },
+          { paper: "#f7faff", ink: "#0b1b33", muted: "#52647c", dark: "#081524", accent: "#2f78d4", signal: "#73b8ff", soft: "#e7eef8" }
+        ],
+        "bold-energetic": [
+          { paper: "#fff8f1", ink: "#1b1210", muted: "#705c55", dark: "#130909", accent: "#d55232", signal: "#2d9bbf", soft: "#f1dfd5" },
+          { paper: "#16070a", ink: "#fff5f7", muted: "#d4aeb7", dark: "#080205", accent: "#ff6b35", signal: "#ffd166", soft: "#241014" },
+          { paper: "#fdf7ff", ink: "#1f1230", muted: "#6f5a82", dark: "#12051d", accent: "#7c3aed", signal: "#f59e0b", soft: "#eee4ff" }
+        ],
+        "warm-trustworthy": [
+          { paper: "#fbf7ec", ink: "#14130f", muted: "#5d594e", dark: "#11100c", accent: "#868f49", signal: "#d6a84f", soft: "#ece7d5" },
+          { paper: "#f4f1e8", ink: "#191816", muted: "#676158", dark: "#10100e", accent: "#465f6e", signal: "#c57a3a", soft: "#e4ded0" },
+          { paper: "#fff4df", ink: "#17110c", muted: "#665a4b", dark: "#100d0a", accent: "#c89b4f", signal: "#4ec9f5", soft: "#f4e5c7" }
+        ]
+      };
+      const fallbackPalettes = [
         { paper: "#fff4df", ink: "#17110c", muted: "#665a4b", dark: "#100d0a", accent: "#c89b4f", signal: "#4ec9f5", soft: "#f4e5c7" },
         { paper: "#eef6f1", ink: "#101916", muted: "#52605a", dark: "#08110f", accent: "#2f9d73", signal: "#d6a84f", soft: "#dfece5" },
         { paper: "#f7f0ea", ink: "#171312", muted: "#61534e", dark: "#140e0d", accent: "#ad6d45", signal: "#5bbbd1", soft: "#eadbd1" },
@@ -998,10 +1118,14 @@
         { paper: "#f5f7fb", ink: "#121725", muted: "#5d6678", dark: "#09101f", accent: "#5266dd", signal: "#26b4a8", soft: "#e7ebf5" },
         { paper: "#fff8f1", ink: "#1b1210", muted: "#705c55", dark: "#130909", accent: "#d55232", signal: "#2d9bbf", soft: "#f1dfd5" }
       ];
+      const palettes = stylePalettes[styleId] || fallbackPalettes;
       const selected = pick(palettes, seed, concept.name.length + concept.id.length);
+      const style = styleOptions.find(option => option.id === styleId);
       return {
         ...selected,
-        mood: `${selected.paper}, ${selected.ink}, ${selected.accent}, and ${selected.signal}`
+        styleId: styleId || "auto",
+        styleName: style ? style.name : "AI4 inferred",
+        mood: `${style ? `${style.name}: ` : ""}${selected.paper}, ${selected.ink}, ${selected.accent}, and ${selected.signal}`
       };
     }
 
@@ -1210,11 +1334,13 @@
       const previousLayout = readStoredValue("ai4_last_layout");
       const selected = finalists.find(item => item.layout !== previousLayout) || finalists[0];
       storeValue("ai4_last_layout", selected.layout);
-      const palette = buildPalette(seed, selected);
+      const palette = buildPalette(seed, selected, state.style);
       const sectionPlan = buildSectionPlan(input, selected, seed);
       const system = {
         concept: selected.name,
         conceptLane: selected.lane,
+        styleChoice: palette.styleId,
+        styleLabel: palette.styleName,
         layoutClass: selected.layout,
         creativeDirection: `${input.brandName} should feel like a ${selected.name} experience for ${input.audience}, built around ${input.outcome}. The first viewport must use ${selected.firstViewport}.`,
         visualSignature: selected.visualSignature,
@@ -1302,6 +1428,8 @@
         ctaLink: "offer.html",
         designSystem: system.concept,
         conceptLane: system.conceptLane,
+        styleChoice: system.styleChoice,
+        styleLabel: system.styleLabel,
         layoutClass: system.layoutClass,
         creativeDirection: system.creativeDirection,
         visualSignature: system.visualSignature,
@@ -1414,9 +1542,25 @@ ${body}
 
     ["topStart", "heroStart"].forEach(id => $(id).addEventListener("click", scrollBuilder));
 
+    inputArea.addEventListener("click", event => {
+      const purposeButton = event.target.closest("[data-purpose]");
+      if (purposeButton) {
+        state.purpose = purposeButton.dataset.purpose;
+        state.step = 1;
+        render();
+        return;
+      }
+
+      const styleButton = event.target.closest("[data-style-choice]");
+      if (styleButton) {
+        state.style = styleButton.dataset.styleChoice;
+        render();
+      }
+    });
+
     nextBtn.addEventListener("click", () => {
       saveCurrent();
-      if (state.step < contactStep()) {
+      if (state.step < styleStep()) {
         state.step += 1;
         render();
       } else {
@@ -1447,15 +1591,18 @@ ${body}
 
       const payload = buildPreviewPayload();
       const builtHtml = buildWebsiteHtml(payload);
-      storeJson("ai4_answers", { purpose: state.purpose, answers: state.answers, contact: state.contact, member: state.member });
+      storeJson("ai4_answers", { purpose: state.purpose, style: state.style, answers: state.answers, contact: state.contact, member: state.member });
       storeJson("ai4_member", state.member);
       storeJson("fiveKaratPreview", payload);
-      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, purpose: state.purpose });
+      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, purpose: state.purpose, style: state.style });
+      storeValue("ai4_selected_style", state.style);
       storeValue("ai4_email", state.contact.email);
       storeValue("ai4_phone", state.contact.phone);
       storeValue("ai4_name", displayName());
       storeValue("ai4_full_name", displayName());
       storeValue("ai4_built_html", builtHtml);
+      storeValue("ai4_preview_palette", "original");
+      storeValue("ai4_preview_treatment", "original");
       window.location.href = "Preview.html";
     });
 
