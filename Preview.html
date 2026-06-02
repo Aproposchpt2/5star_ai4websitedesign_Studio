@@ -774,6 +774,70 @@
       min-height: 44px;
     }
 
+    .member-delivery {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .member-delivery.active { display: block; }
+
+    .member-delivery h3 {
+      margin: 0 0 .35rem;
+      color: var(--ink);
+      font-family: var(--display);
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .member-delivery p {
+      margin: 0 0 .9rem;
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.5;
+    }
+
+    .delivery-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .55rem;
+      margin-bottom: .65rem;
+    }
+
+    .delivery-fields .full { grid-column: 1 / -1; }
+
+    .delivery-fields input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid rgba(184, 196, 217, .14);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .055);
+      color: var(--ink);
+      outline: none;
+      padding: .72rem .8rem;
+    }
+
+    .delivery-fields input:focus {
+      border-color: rgba(91, 211, 255, .48);
+      box-shadow: 0 0 0 3px rgba(30, 167, 255, .12);
+    }
+
+    .delivery-status {
+      display: none;
+      margin-top: .7rem;
+      padding: .72rem .8rem;
+      border-radius: 10px;
+      border: 1px solid rgba(184, 196, 217, .14);
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.5;
+    }
+
+    .delivery-status.active { display: block; }
+    .delivery-status.success { border-color: rgba(34, 216, 122, .36); color: #97f0bd; background: rgba(34, 216, 122, .08); }
+    .delivery-status.error { border-color: rgba(240, 165, 0, .38); color: #f5c671; background: rgba(240, 165, 0, .08); }
+
     textarea {
       position: fixed;
       left: -9999px;
@@ -849,7 +913,7 @@
       <button class="btn" id="startFreshPreview" type="button">Start Fresh</button>
       <button class="btn" id="copyCode" type="button">Copy HTML</button>
       <button class="btn" id="downloadCode" type="button">Download HTML</button>
-      <a class="btn primary" href="offer.html">Continue</a>
+      <button class="btn primary" id="chooseWebsiteTop" type="button">Choose Website</button>
     </div>
   </nav>
 
@@ -952,8 +1016,20 @@
 
         <div class="choice-actions" style="margin-top:1rem">
           <button class="btn" id="copyCodeBottom" type="button">Copy Current HTML</button>
-          <a class="btn primary" href="offer.html">Review Offer</a>
+          <button class="btn primary" id="chooseWebsiteBottom" type="button">Choose This Website</button>
         </div>
+        <form class="member-delivery" id="memberDeliveryForm">
+          <h3>Member signup and delivery</h3>
+          <p>Enter the member details. AI4 will email the selected website file to the member and send the same file to jmitchell@ai4websitedesign.com.</p>
+          <div class="delivery-fields">
+            <input id="deliveryFirstName" name="firstName" type="text" placeholder="First name" autocomplete="given-name" required />
+            <input id="deliveryLastName" name="lastName" type="text" placeholder="Last name" autocomplete="family-name" required />
+            <input class="full" id="deliveryEmail" name="email" type="email" placeholder="Email address" autocomplete="email" required />
+            <input class="full" id="deliveryPhone" name="phone" type="tel" placeholder="Phone number optional" autocomplete="tel" />
+          </div>
+          <button class="btn primary" id="sendWebsiteEmail" type="submit">Send My Website</button>
+          <div class="delivery-status" id="deliveryStatus"></div>
+        </form>
       </aside>
     </section>
   </main>
@@ -1342,6 +1418,111 @@
       setTimeout(() => URL.revokeObjectURL(url), 800);
     }
 
+    function openMemberDelivery() {
+      const form = $("memberDeliveryForm");
+      form.classList.add("active");
+      const savedMember = readJson("ai4_member") || {};
+      $("deliveryFirstName").value = savedMember.firstName || "";
+      $("deliveryLastName").value = savedMember.lastName || "";
+      $("deliveryEmail").value = savedMember.email || readValue("ai4_email") || "";
+      $("deliveryPhone").value = savedMember.phone || readValue("ai4_phone") || "";
+      setDeliveryStatus("", "");
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        if (!$("deliveryFirstName").value) $("deliveryFirstName").focus({ preventScroll: true });
+        else if (!$("deliveryEmail").value) $("deliveryEmail").focus({ preventScroll: true });
+      }, 220);
+    }
+
+    function setDeliveryStatus(type, message) {
+      const status = $("deliveryStatus");
+      status.className = "delivery-status";
+      if (!message) {
+        status.textContent = "";
+        return;
+      }
+      status.classList.add("active");
+      if (type) status.classList.add(type);
+      status.textContent = message;
+    }
+
+    function deliveryMember() {
+      return {
+        firstName: $("deliveryFirstName").value.trim(),
+        lastName: $("deliveryLastName").value.trim(),
+        email: $("deliveryEmail").value.trim(),
+        phone: $("deliveryPhone").value.trim()
+      };
+    }
+
+    async function submitMemberDelivery(event) {
+      event.preventDefault();
+      const button = $("sendWebsiteEmail");
+      const member = deliveryMember();
+      const fullName = `${member.firstName} ${member.lastName}`.trim();
+
+      if (!member.firstName || !member.lastName || !member.email) {
+        setDeliveryStatus("error", "Please enter first name, last name, and email before sending the site.");
+        return;
+      }
+
+      if (!state.builtHtml || !state.builtHtml.includes("<html")) {
+        setDeliveryStatus("error", "The selected website HTML was not found. Please rebuild the preview and choose it again.");
+        return;
+      }
+
+      storeValue("ai4_member", JSON.stringify(member));
+      storeValue("ai4_email", member.email);
+      storeValue("ai4_phone", member.phone);
+      storeValue("ai4_name", fullName);
+      storeValue("ai4_full_name", fullName);
+      storeValue("ai4_selected_html", state.builtHtml);
+
+      button.disabled = true;
+      const oldText = button.textContent;
+      button.textContent = "Sending Website...";
+      setDeliveryStatus("", "Preparing the website file and sending delivery emails.");
+
+      try {
+        const response = await fetch("/api/deliver-selected-site", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            full_name: fullName,
+            first_name: member.firstName,
+            last_name: member.lastName,
+            email: member.email,
+            phone: member.phone,
+            business_name: state.data.websiteTitle,
+            built_html: state.builtHtml,
+            style: state.data.styleLabel || state.data.styleChoice || "",
+            layout: state.data.layoutClass || "",
+            palette: findById(PALETTES, state.selectedPalette).name,
+            treatment: findById(TREATMENTS, state.selectedTreatment).name,
+            site_data: state.data
+          })
+        });
+
+        let result = {};
+        try { result = await response.json(); } catch (_) {}
+
+        if (!response.ok || !result.success) {
+          const message = result.error || (response.status === 404
+            ? "Email delivery is available after the Netlify function is deployed."
+            : "The delivery email could not be sent yet.");
+          throw new Error(message);
+        }
+
+        setDeliveryStatus("success", result.message || "Website file sent. Check the member email for the site file.");
+        setTimeout(() => { window.location.href = "offer.html"; }, 1800);
+      } catch (error) {
+        setDeliveryStatus("error", error.message || "Email delivery failed. The selected HTML is still available to copy or download.");
+      } finally {
+        button.disabled = false;
+        button.textContent = oldText;
+      }
+    }
+
     function bindControls() {
       document.addEventListener("click", event => {
         const paletteButton = event.target.closest("[data-palette]");
@@ -1373,6 +1554,9 @@
 
       $("copyCode").addEventListener("click", event => copyHtml(state.builtHtml, event.currentTarget));
       $("copyCodeBottom").addEventListener("click", event => copyHtml(state.builtHtml, event.currentTarget));
+      $("chooseWebsiteTop").addEventListener("click", openMemberDelivery);
+      $("chooseWebsiteBottom").addEventListener("click", openMemberDelivery);
+      $("memberDeliveryForm").addEventListener("submit", submitMemberDelivery);
       $("startFreshPreview").addEventListener("click", () => {
         clearBuildStorage();
         window.location.href = "index.html#builder";

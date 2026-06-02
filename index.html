@@ -741,8 +741,8 @@
         <article class="step"><strong>1</strong><h3>Choose the purpose</h3><p>Business, personal, or blog.</p></article>
         <article class="step"><strong>2</strong><h3>Answer three strategy questions</h3><p>The questions focus on value, audience, and trust.</p></article>
         <article class="step"><strong>3</strong><h3>Add contact direction</h3><p>Email, phone, social links, and the call to action.</p></article>
-        <article class="step"><strong>4</strong><h3>Create the member profile</h3><p>The profile unlocks the preview and stores the customer name.</p></article>
-        <article class="step"><strong>5</strong><h3>Review the website</h3><p>Preview, copy, download, and continue to the offer page.</p></article>
+        <article class="step"><strong>4</strong><h3>Build and review</h3><p>The generated site opens in the preview control center.</p></article>
+        <article class="step"><strong>5</strong><h3>Choose and join</h3><p>After choosing the site, the member profile triggers delivery by email.</p></article>
       </div>
     </section>
 
@@ -763,8 +763,8 @@
 
         <form class="member-card" id="memberCard">
           <div class="member-badge">Member Access</div>
-          <h2>As a member, you get your first website free.</h2>
-          <p>Create the member profile to unlock the generated website preview.</p>
+          <h2>As a member, you get your selected website by email.</h2>
+          <p>Create the member profile after choosing the preview. AI4 will email the selected website file to the member and owner.</p>
           <div class="fields">
             <input id="firstName" name="firstName" type="text" placeholder="First Name" autocomplete="given-name" required />
             <input id="lastName" name="lastName" type="text" placeholder="Last Name" autocomplete="family-name" required />
@@ -1049,6 +1049,22 @@
       memberCard.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
+    function buildAndOpenPreview() {
+      const payload = buildPreviewPayload();
+      const builtHtml = buildWebsiteHtml(payload);
+      storeJson("ai4_answers", { purpose: state.purpose, style: state.style, answers: state.answers, contact: state.contact });
+      storeJson("fiveKaratPreview", payload);
+      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, purpose: state.purpose, style: state.style });
+      storeValue("ai4_email", state.contact.email);
+      storeValue("ai4_phone", state.contact.phone);
+      storeValue("ai4_name", payload.websiteTitle);
+      storeValue("ai4_full_name", payload.websiteTitle);
+      storeValue("ai4_built_html", builtHtml);
+      storeValue("ai4_preview_palette", "original");
+      storeValue("ai4_preview_treatment", "original");
+      window.location.href = "Preview.html";
+    }
+
     const agentDirectives = [
       "AI4 5-Karat Creative Mandate: assume common website patterns are banned before generating.",
       "Do not default to Hero > Features > About > Testimonials > Contact; structure must emerge from purpose.",
@@ -1299,7 +1315,7 @@
       }
 
       return {
-        brandName: displayName(),
+        brandName: sentence(answers.q2, purpose === "Blog" ? "Editorial Journal" : "Personal Presence"),
         description: sentence(answers.q2, purpose === "Blog" ? "meaningful topics" : "a refined introduction"),
         audience: sentence(answers.q3, purpose === "Blog" ? "curious readers" : "the right audience"),
         outcome: sentence(answers.q4, purpose === "Blog" ? "leave with more clarity than they arrived with" : "the right impression and the right opportunities")
@@ -1484,7 +1500,7 @@
           footerLine: "Built by AI4 for trust, clarity, and conversion."
         },
         Personal: {
-          websiteTitle: displayName(),
+          websiteTitle: profile.brandName,
           eyebrow: "AI4 Personal Signature",
           headline: "A personal presence with clarity, credibility, and momentum.",
           subheadline: `${sentence(answers.q2, "A refined introduction to the person behind the name")}. Built to help the right people understand the story, the work, and the direction at a glance.`,
@@ -1497,7 +1513,7 @@
           footerLine: "Built by AI4 for identity, credibility, and opportunity."
         },
         Blog: {
-          websiteTitle: displayName(),
+          websiteTitle: profile.brandName,
           eyebrow: "AI4 Editorial Presence",
           headline: "Ideas with enough clarity to make readers return.",
           subheadline: `An editorial destination focused on ${sentence(answers.q2, "meaningful topics")}, created for ${sentence(answers.q3, "curious readers")}. Built for readers who want perspective without the noise.`,
@@ -1678,7 +1694,7 @@ ${body}
         state.step += 1;
         render();
       } else {
-        showMember();
+        buildAndOpenPreview();
       }
     });
 
