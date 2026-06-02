@@ -754,6 +754,14 @@
       }
     }
 
+    function readStoredValue(key) {
+      try {
+        return localStorage.getItem(key) || sessionStorage.getItem(key) || "";
+      } catch (error) {
+        try { return sessionStorage.getItem(key) || ""; } catch (_) { return ""; }
+      }
+    }
+
     function storeJson(key, value) {
       storeValue(key, JSON.stringify(value));
     }
@@ -851,12 +859,14 @@
     }
 
     const agentDirectives = [
-      "Create a purpose-built website system before choosing layout.",
-      "Never imitate Squarespace, Wix, Webflow marketplace, or generic SaaS template patterns.",
-      "Avoid same-size card grids as the main design device.",
-      "Give every output a unique visual signature, section rhythm, and conversion path.",
-      "Reject stock placeholder composition, vague luxury language, and decorative-only design.",
-      "Design for first-viewport belief, proof, frictionless action, and memorable identity."
+      "AI4 5-Karat Creative Mandate: assume common website patterns are banned before generating.",
+      "Do not default to Hero > Features > About > Testimonials > Contact; structure must emerge from purpose.",
+      "Generate three internal concepts before choosing one; never build the first predictable idea.",
+      "Every output must include at least one memorable visual signature device.",
+      "Choose memorable over familiar when navigation, conversion, and accessibility remain clear.",
+      "Every industry must have multiple possible design archetypes instead of one expected look.",
+      "Reject outputs that resemble Squarespace, Wix, GoDaddy, Webflow marketplace templates, or generic AI landing pages.",
+      "Design for perception, positioning, credibility, desire, opportunity, and first-viewport screenshot distinction."
     ];
 
     function hashText(value) {
@@ -885,6 +895,8 @@
           lane: "architectural editorial",
           layout: "split-axis",
           visualSignature: "an offset editorial axis, numbered proof bands, and a precision-line motif",
+          archetype: "architectural framing with a thesis wall and precision proof sequence",
+          emotion: "controlled confidence",
           firstViewport: "large asymmetric hero with a left-side value thesis and right-side signal frame",
           sectionLogic: ["Opening Thesis", "Proof Axis", "Offer Detail", "Standard", "Contact Path"],
           risk: "low"
@@ -895,6 +907,8 @@
           lane: "invitation system",
           layout: "private-index",
           visualSignature: "a private-member index, inset navigation, and quiet invitation panels",
+          archetype: "private advisory dossier with an invitation-first structure",
+          emotion: "exclusive clarity",
           firstViewport: "confident introduction with a private access feeling and deliberate negative space",
           sectionLogic: ["Invitation", "Point of View", "Proof Ledger", "Opportunity", "Contact Path"],
           risk: "medium"
@@ -905,6 +919,8 @@
           lane: "intelligent command",
           layout: "signal-atlas",
           visualSignature: "layered signal map, diagonal content path, and high-contrast action rail",
+          archetype: "command-center interface with connected decision signals",
+          emotion: "high-control momentum",
           firstViewport: "modern command-style hero with an action rail and directional signal lines",
           sectionLogic: ["Command View", "Signal Proof", "Service Map", "Decision Point", "Contact Path"],
           risk: "low"
@@ -915,6 +931,8 @@
           lane: "publication quality",
           layout: "editorial-arc",
           visualSignature: "serif-led story arc, oversized pull statement, and article-like progression",
+          archetype: "editorial cover story with a thesis, pull quote, and reading path",
+          emotion: "thoughtful authority",
           firstViewport: "editorial hero that feels written, curated, and intentionally paced",
           sectionLogic: ["Thesis", "Topic Lanes", "Reader Promise", "Featured Frame", "Subscribe"],
           risk: "low"
@@ -925,6 +943,8 @@
           lane: "premium proof",
           layout: "showroom-grid",
           visualSignature: "showroom-scale spacing, staggered proof blocks, and material-inspired surfaces",
+          archetype: "museum-style reveal with a craftsmanship wall and staggered proof pieces",
+          emotion: "premium desire",
           firstViewport: "premium showroom reveal with measured proof and calm conversion pressure",
           sectionLogic: ["Reveal", "Material Proof", "Offer Architecture", "Credibility Frame", "Contact Path"],
           risk: "medium"
@@ -935,6 +955,8 @@
           lane: "human authority",
           layout: "founder-field",
           visualSignature: "signature field, founder-style declaration, and compact credibility moments",
+          archetype: "founder manifesto with a human authority field and opportunity corridor",
+          emotion: "personal conviction",
           firstViewport: "human, sharp, and memorable first screen with a clear reason to engage",
           sectionLogic: ["Opening Scene", "Authority Statement", "Proof Corridor", "Opportunity", "Contact Path"],
           risk: "medium"
@@ -942,12 +964,19 @@
       ];
 
       return concepts.map((concept, index) => {
-        let score = 78 + ((seed + index * 17) % 14);
+        const originalityBoost = ((seed >>> (index % 8)) + index * 19) % 28;
+        let score = 70 + originalityBoost;
         const haystack = normalizeText(`${input.purpose} ${input.description} ${input.audience} ${input.outcome}`);
         if (haystack.includes("blog") && concept.id === "editorial-arc") score += 14;
-        if (haystack.includes("personal") && concept.id === "founder-field") score += 12;
+        if ((haystack.includes("personal") || input.purpose === "Personal") && concept.id === "founder-field") score += 12;
+        if (input.purpose === "Blog" && concept.id === "editorial-arc") score += 12;
+        if (input.purpose === "Business" && ["atelier-axis", "showroom-grid", "signal-atlas", "private-index"].includes(concept.id)) score += 8;
         if (haystack.includes("service") && concept.id === "atelier-axis") score += 9;
         if (haystack.includes("premium") && concept.id === "showroom-grid") score += 9;
+        if (haystack.includes("coach") && concept.id === "private-index") score += 10;
+        if (haystack.includes("contract") && concept.id === "showroom-grid") score += 10;
+        if (haystack.includes("law") && concept.id === "private-index") score += 8;
+        if (haystack.includes("technology") && concept.id === "signal-atlas") score += 8;
         if (concept.risk === "low") score += 5;
         if (input.description.length > 60) score += 4;
         return { ...concept, score };
@@ -960,9 +989,16 @@
         { paper: "#eef6f1", ink: "#101916", muted: "#52605a", dark: "#08110f", accent: "#2f9d73", signal: "#d6a84f", soft: "#dfece5" },
         { paper: "#f7f0ea", ink: "#171312", muted: "#61534e", dark: "#140e0d", accent: "#ad6d45", signal: "#5bbbd1", soft: "#eadbd1" },
         { paper: "#f2f5f7", ink: "#10151b", muted: "#59636d", dark: "#07111c", accent: "#2f78d4", signal: "#d8a84b", soft: "#e3eaf0" },
-        { paper: "#fbf7ec", ink: "#14130f", muted: "#5d594e", dark: "#11100c", accent: "#868f49", signal: "#d6a84f", soft: "#ece7d5" }
+        { paper: "#fbf7ec", ink: "#14130f", muted: "#5d594e", dark: "#11100c", accent: "#868f49", signal: "#d6a84f", soft: "#ece7d5" },
+        { paper: "#0b111c", ink: "#eef5ff", muted: "#98a9bc", dark: "#02050a", accent: "#7fc9ff", signal: "#f0d28a", soft: "#111d2d" },
+        { paper: "#f8f3f0", ink: "#1e1716", muted: "#6a5753", dark: "#1a0e10", accent: "#8d3f4a", signal: "#7796d8", soft: "#ead9d4" },
+        { paper: "#f0f4ee", ink: "#111611", muted: "#57605a", dark: "#0a100c", accent: "#6e7f48", signal: "#c8a64e", soft: "#dde5d9" },
+        { paper: "#111015", ink: "#f5edf2", muted: "#b4a7ae", dark: "#050407", accent: "#d6789b", signal: "#7bd1c6", soft: "#1d1920" },
+        { paper: "#f4f1e8", ink: "#191816", muted: "#676158", dark: "#10100e", accent: "#465f6e", signal: "#c57a3a", soft: "#e4ded0" },
+        { paper: "#f5f7fb", ink: "#121725", muted: "#5d6678", dark: "#09101f", accent: "#5266dd", signal: "#26b4a8", soft: "#e7ebf5" },
+        { paper: "#fff8f1", ink: "#1b1210", muted: "#705c55", dark: "#130909", accent: "#d55232", signal: "#2d9bbf", soft: "#f1dfd5" }
       ];
-      const selected = pick(palettes, seed, concept.name.length);
+      const selected = pick(palettes, seed, concept.name.length + concept.id.length);
       return {
         ...selected,
         mood: `${selected.paper}, ${selected.ink}, ${selected.accent}, and ${selected.signal}`
@@ -1147,6 +1183,18 @@
       };
     }
 
+    function buildDesignRationale(input, selected, finalists, palette) {
+      return {
+        structureChosen: `${selected.archetype} was chosen because ${input.brandName} needs a structure shaped around ${input.outcome}, not a default section sequence.`,
+        emotionalResponse: `Target response: ${selected.emotion}. The visitor should feel that the page was designed for this specific purpose before reading every detail.`,
+        distinctSignal: selected.visualSignature,
+        screenshotTest: `A first-viewport screenshot should read as ${selected.firstViewport}, not as a generic hero/features/about layout.`,
+        conceptExploration: finalists.map((item, index) => `Concept ${String.fromCharCode(65 + index)}: ${item.name} (${item.lane})`).join(" | "),
+        paletteReason: `Color mood selected for contrast and distinction: ${palette.mood}.`,
+        fit: `${selected.name} fits ${input.audience} because the experience can make ${input.outcome} feel clear, credible, and memorable.`
+      };
+    }
+
     function getDesignSystem(purpose, profile, cta) {
       const input = {
         brandName: profile.brandName,
@@ -1158,7 +1206,10 @@
       };
       const seed = hashText(`${Date.now()}|${Math.random()}|${input.brandName}|${input.purpose}|${input.description}|${input.audience}|${input.outcome}`);
       const competition = runConceptCompetition(input, seed);
-      const selected = competition[0];
+      const finalists = competition.slice(0, 3);
+      const previousLayout = readStoredValue("ai4_last_layout");
+      const selected = finalists.find(item => item.layout !== previousLayout) || finalists[0];
+      storeValue("ai4_last_layout", selected.layout);
       const palette = buildPalette(seed, selected);
       const sectionPlan = buildSectionPlan(input, selected, seed);
       const system = {
@@ -1171,7 +1222,8 @@
         colorMood: palette.mood,
         palette,
         sectionPlan,
-        internalCompetition: competition.slice(0, 3).map(item => ({
+        internalRationale: buildDesignRationale(input, selected, finalists, palette),
+        internalCompetition: finalists.map(item => ({
           name: item.name,
           score: item.score,
           lane: item.lane,
@@ -1269,37 +1321,73 @@
 
     function buildWebsiteHtml(data) {
       const palette = data.palette || {};
-      const publicCards = Array.isArray(data.publicCards) && data.publicCards.length ? data.publicCards : [
+      const cards = (Array.isArray(data.publicCards) && data.publicCards.length ? data.publicCards : [
         { label: "Value", title: "Built for the right first impression.", body: data.valueStatement },
         { label: "Trust", title: data.trustHeadline, body: data.trustBody },
         { label: "Next Step", title: data.primaryCta, body: data.contactBody }
-      ];
+      ]).filter(Boolean);
+      while (cards.length < 5) cards.push(cards[cards.length % Math.max(cards.length, 1)] || { label: "Signal", title: data.primaryCta, body: data.contactBody });
       const heroBadge = data.heroBadge || {
         label: data.websiteTitle,
         title: data.trustHeadline,
         body: data.trustBody
       };
-      const experienceSections = publicCards.map((item, index) => `
-        <article class="experience-card" style="--i:${index + 1}">
+      const layout = data.layoutClass || "split-axis";
+      const brandDominance = data.purpose === "Business"
+        ? `<div class="brand-dominant">${escapeHtml(data.websiteTitle)}</div>`
+        : "";
+      const cardAt = index => cards[index % cards.length];
+      const renderCard = (item, index, className = "idea-card") => `
+        <article class="${className}">
           <div class="num">${String(index + 1).padStart(2, "0")}</div>
           <small>${escapeHtml(item.label)}</small>
           <h2>${escapeHtml(item.title)}</h2>
           <p>${escapeHtml(item.body)}</p>
-        </article>`).join("");
+        </article>`;
+      const renderCards = (className = "idea-card") => cards.map((item, index) => renderCard(item, index, className)).join("");
       const proofItems = [
         { label: "Value", title: "Built for the right first impression.", body: data.valueStatement },
         { label: "About", title: "Clear, polished, and intentional.", body: data.aboutCopy },
         { label: "Trust", title: data.trustHeadline, body: data.trustBody }
-      ].map(item => `
-        <article class="proof-item">
-          <small>${escapeHtml(item.label)}</small>
-          <h2>${escapeHtml(item.title)}</h2>
-          <p>${escapeHtml(item.body)}</p>
-        </article>`).join("");
-      const brandDominance = data.purpose === "Business"
-        ? `<div class="brand-dominant">${escapeHtml(data.websiteTitle)}</div>`
-        : "";
-      const brandFocus = data.purpose === "Business" ? "true" : "false";
+      ];
+      const renderProof = (className = "proof-item") => proofItems.map((item, index) => renderCard(item, index, className)).join("");
+      const nav = `<nav><div>${escapeHtml(data.websiteTitle)}</div><div class="badge">${escapeHtml(data.purpose)} Website | {{CITY}}</div></nav>`;
+      const actionRow = `<div class="actions"><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><a class="secondary" href="#details">${escapeHtml(data.secondaryCta)}</a></div>`;
+      const signature = `<aside class="signature"><small>${escapeHtml(heroBadge.label)}</small><strong>${escapeHtml(heroBadge.title)}</strong><p>${escapeHtml(heroBadge.body)}</p></aside>`;
+      const contact = `<section class="contact" id="contact"><h2>${escapeHtml(data.contactHeadline)}</h2><div><p>${escapeHtml(data.contactBody)}</p><p>${escapeHtml(data.contactLine)}</p><p>${escapeHtml(data.socials)}</p><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><div class="footerline">${escapeHtml(data.footerLine)}</div></div></section>`;
+      const copyBlock = `<div class="copy"><div class="kicker">${escapeHtml(data.eyebrow)}</div>${brandDominance}<h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p>${actionRow}</div>`;
+
+      const renderers = {
+        "split-axis": () => `
+          <section class="opening axis-opening">${nav}<div class="axis-grid">${copyBlock}${signature}</div></section>
+          <section class="proof-band" id="details">${renderProof("proof-slab")}</section>
+          <section class="experience-wall">${renderCards("idea-card")}</section>
+          ${contact}`,
+        "private-index": () => `
+          <section class="opening private-opening">${nav}<div class="private-grid"><aside class="index-stack">${cards.slice(0, 4).map((item, index) => `<a href="#panel-${index + 1}"><span>${String(index + 1).padStart(2, "0")}</span>${escapeHtml(item.label)}</a>`).join("")}</aside>${copyBlock}</div></section>
+          <section class="invitation-panel" id="details">${signature}<div><h2>${escapeHtml(data.valueStatement)}</h2><p>${escapeHtml(data.aboutCopy)}</p></div></section>
+          <section class="ledger">${cards.map((item, index) => `<article id="panel-${index + 1}"><small>${escapeHtml(item.label)}</small><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.body)}</p></article>`).join("")}</section>
+          ${contact}`,
+        "signal-atlas": () => `
+          <section class="opening command-opening">${nav}<div class="command-grid">${copyBlock}<div class="signal-map">${cards.slice(0, 4).map((item, index) => `<article class="signal-node node-${index + 1}"><small>${String(index + 1).padStart(2, "0")} / ${escapeHtml(item.label)}</small><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.body)}</p></article>`).join("")}</div><aside class="action-rail"><span>${escapeHtml(data.primaryCta)}</span><p>${escapeHtml(data.contactBody)}</p></aside></div></section>
+          <section class="pathway" id="details">${renderProof("path-card")}</section>
+          ${contact}`,
+        "editorial-arc": () => `
+          <section class="opening editorial-cover">${nav}<div class="issue-label">${escapeHtml(data.eyebrow)}</div>${brandDominance}<h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p>${actionRow}</section>
+          <section class="pull-quote" id="details"><small>${escapeHtml(heroBadge.label)}</small><h2>${escapeHtml(heroBadge.title)}</h2><p>${escapeHtml(heroBadge.body)}</p></section>
+          <section class="editorial-columns">${renderCards("column-card")}</section>
+          ${contact}`,
+        "showroom-grid": () => `
+          <section class="opening showroom-opening">${nav}<div class="showroom-reveal"><div>${brandDominance || `<strong>${escapeHtml(data.websiteTitle)}</strong>`}<h1>${escapeHtml(data.headline)}</h1></div><p>${escapeHtml(data.subheadline)}</p>${actionRow}</div></section>
+          <section class="material-wall" id="details">${renderProof("material-card")}</section>
+          <section class="staggered-showroom">${cards.map((item, index) => renderCard(item, index, index % 2 ? "showroom-card tall" : "showroom-card")).join("")}</section>
+          ${contact}`,
+        "founder-field": () => `
+          <section class="opening founder-opening">${nav}<div class="founder-field"><div class="signature-line">${escapeHtml(data.websiteTitle)}</div>${copyBlock}${signature}</div></section>
+          <section class="corridor" id="details">${cards.map((item, index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><div><small>${escapeHtml(item.label)}</small><h2>${escapeHtml(item.title)}</h2><p>${escapeHtml(item.body)}</p></div></article>`).join("")}</section>
+          ${contact}`
+      };
+      const body = (renderers[layout] || renderers["split-axis"])();
 
       return `<!DOCTYPE html>
 <html lang="en">
@@ -1308,21 +1396,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>${escapeHtml(data.websiteTitle)}</title>
 <style>
-:root{--paper:${escapeHtml(palette.paper || "#fff5df")};--ink:${escapeHtml(palette.ink || "#17110c")};--muted:${escapeHtml(palette.muted || "#655a4c")};--dark:${escapeHtml(palette.dark || "#100d0a")};--accent:${escapeHtml(palette.accent || "#c89b4f")};--signal:${escapeHtml(palette.signal || "#4ec9f5")};--soft:${escapeHtml(palette.soft || "#f4e5c7")};--line:color-mix(in srgb,var(--ink) 16%,transparent)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 82% 16%,color-mix(in srgb,var(--signal) 18%,transparent),transparent 34%),radial-gradient(circle at 8% 86%,color-mix(in srgb,var(--accent) 17%,transparent),transparent 30%),linear-gradient(90deg,color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),var(--paper);background-size:auto,auto,46px 46px,46px 46px,auto}.hero{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.hero:before{content:"";position:absolute;inset:15vh -15vw auto auto;width:48vw;height:48vw;min-width:300px;min-height:300px;border:1px solid color-mix(in srgb,var(--accent) 62%,transparent);border-radius:50%;box-shadow:inset 0 0 0 8vw color-mix(in srgb,var(--signal) 8%,transparent),0 0 130px color-mix(in srgb,var(--signal) 18%,transparent);pointer-events:none}.hero:after{content:"";position:absolute;left:clamp(22px,6vw,82px);right:clamp(22px,6vw,82px);bottom:30px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:1}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.hero-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end;position:relative;z-index:1}.kicker{color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:950;margin-bottom:22px}.brand-dominant{font-family:Georgia,serif;font-size:clamp(70px,11vw,160px);line-height:.78;letter-spacing:-.08em;max-width:980px;margin:0 0 22px;color:var(--ink)}.copy h1{font-family:Georgia,serif;font-size:clamp(46px,7.2vw,98px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:980px}.copy p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent)}.signature small,.proof-item small,.experience-card small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p{margin:0;color:var(--muted);line-height:1.65}.proof{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-item{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-item:last-child{border-right:0}.proof-item h2,.experience-card h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:26px 0 16px}.proof-item p,.experience-card p{color:var(--muted);line-height:1.7;margin:0}.experience{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.experience-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.experience-card:nth-child(2n){transform:translateY(36px)}.experience-card:nth-child(3n){grid-column:span 5}.experience-card:nth-child(4n){grid-column:span 7}.experience-card:after{content:"";position:absolute;right:-18%;bottom:-20%;width:62%;aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,var(--signal) 12%,transparent);filter:blur(12px)}.experience-card>*{position:relative;z-index:1}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:42px;color:var(--ink)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.footerline{margin-top:34px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}[data-brand-focus="true"] .hero-grid{grid-template-columns:minmax(0,1fr) minmax(270px,.34fr)}[data-brand-focus="true"] .copy h1{font-size:clamp(30px,3.8vw,56px);line-height:1;letter-spacing:-.04em;max-width:760px}[data-layout="private-index"] .hero-grid{grid-template-columns:.72fr 1fr;align-items:center}[data-layout="private-index"] .copy{order:2}[data-layout="private-index"] .signature{order:1}[data-layout="signal-atlas"] .hero-grid{grid-template-columns:1fr .55fr}[data-layout="signal-atlas"] .signature{border-radius:8px}[data-layout="editorial-arc"] .proof{grid-template-columns:.8fr 1.2fr 1fr}[data-layout="editorial-arc"] .copy h1{max-width:1180px}[data-layout="showroom-grid"] .experience-card{border-radius:8px}[data-layout="founder-field"] .hero-grid{grid-template-columns:1fr .7fr}[data-layout="founder-field"] .signature{background:var(--dark);color:var(--paper)}[data-layout="founder-field"] .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}@media(max-width:900px){.hero-grid,.proof,.contact,[data-layout] .hero-grid,[data-brand-focus="true"] .hero-grid{grid-template-columns:1fr}.proof-item{border-right:0;border-bottom:1px solid var(--line)}.experience{grid-template-columns:1fr}.experience-card,.experience-card:nth-child(3n),.experience-card:nth-child(4n){grid-column:auto}.experience-card:nth-child(2n){transform:none}}@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.hero{min-height:86vh}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.hero:before{right:-45vw}.signature{border-radius:18px}.brand-dominant{font-size:clamp(54px,16vw,86px)}.experience-card{min-height:240px}}
+:root{--paper:${escapeHtml(palette.paper || "#fff5df")};--ink:${escapeHtml(palette.ink || "#17110c")};--muted:${escapeHtml(palette.muted || "#655a4c")};--dark:${escapeHtml(palette.dark || "#100d0a")};--accent:${escapeHtml(palette.accent || "#c89b4f")};--signal:${escapeHtml(palette.signal || "#4ec9f5")};--soft:${escapeHtml(palette.soft || "#f4e5c7")};--line:color-mix(in srgb,var(--ink) 16%,transparent)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}h1,h2,p{margin-top:0}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 84% 14%,color-mix(in srgb,var(--signal) 20%,transparent),transparent 34%),radial-gradient(circle at 8% 90%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 30%),var(--paper)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:2}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.opening{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.opening:before{content:"";position:absolute;inset:12vh -16vw auto auto;width:48vw;height:48vw;min-width:280px;min-height:280px;border:1px solid color-mix(in srgb,var(--accent) 54%,transparent);border-radius:50%;box-shadow:0 0 120px color-mix(in srgb,var(--signal) 16%,transparent);pointer-events:none}.copy{position:relative;z-index:1}.kicker,.issue-label,.signature small,.idea-card small,.proof-slab small,.path-card small,.column-card small,.material-card small,.showroom-card small,.corridor small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.kicker{margin-bottom:22px}.brand-dominant{font-family:Georgia,serif;font-size:clamp(62px,10vw,150px);line-height:.78;letter-spacing:-.08em;max-width:980px;margin:0 0 22px;color:var(--ink)}.copy h1,.editorial-cover h1,.showroom-reveal h1{font-family:Georgia,serif;font-size:clamp(44px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:1020px}.copy p,.editorial-cover>p,.showroom-reveal>p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent);position:relative;z-index:1}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p,.idea-card p,.proof-slab p,.path-card p,.column-card p,.material-card p,.showroom-card p,.corridor p{margin:0;color:var(--muted);line-height:1.7}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:32px;color:var(--ink)}.axis-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end}.proof-band{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-slab{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-slab:last-child{border-right:0}.proof-slab h2,.idea-card h2,.path-card h2,.column-card h2,.material-card h2,.showroom-card h2,.corridor h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:22px 0 16px}.experience-wall{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.idea-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.idea-card:nth-child(2n){transform:translateY(36px)}.idea-card:nth-child(3n){grid-column:span 5}.idea-card:nth-child(4n){grid-column:span 7}.private-grid{align-self:center;display:grid;grid-template-columns:.42fr 1fr;gap:clamp(30px,6vw,90px);align-items:center}.index-stack{border:1px solid var(--line);background:var(--dark);color:var(--paper);padding:18px;display:grid;gap:10px}.index-stack a{color:inherit;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--paper) 18%,transparent);padding:18px 8px;font-weight:900;letter-spacing:.05em}.index-stack span{color:var(--signal);margin-right:14px}.invitation-panel{display:grid;grid-template-columns:.7fr 1fr;gap:30px;padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);background:var(--dark);color:var(--paper)}.invitation-panel p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.invitation-panel h2{font-family:Georgia,serif;font-size:clamp(34px,5vw,72px);line-height:.95;letter-spacing:-.06em}.ledger{padding:clamp(32px,6vw,74px);display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line)}.ledger article{background:var(--paper);padding:26px;min-height:260px}.command-grid{align-self:center;display:grid;grid-template-columns:.86fr 1.1fr .34fr;gap:22px;align-items:stretch}.signal-map{min-height:560px;position:relative;border:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--dark) 88%,transparent),color-mix(in srgb,var(--paper) 74%,transparent));overflow:hidden}.signal-map:before{content:"";position:absolute;inset:12%;border:1px solid color-mix(in srgb,var(--signal) 48%,transparent);transform:rotate(-14deg)}.signal-node{position:absolute;width:min(280px,44%);padding:18px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 86%,white 14%);box-shadow:0 18px 70px color-mix(in srgb,var(--dark) 18%,transparent)}.node-1{left:8%;top:8%}.node-2{right:8%;top:28%}.node-3{left:14%;bottom:18%}.node-4{right:12%;bottom:8%}.signal-node strong{display:block;margin:8px 0;font-family:Georgia,serif;font-size:26px;line-height:1}.signal-node p{font-size:14px}.action-rail{writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;gap:24px;background:var(--dark);color:var(--paper);padding:20px;text-transform:uppercase;letter-spacing:.14em;font-weight:950}.action-rail p{writing-mode:horizontal-tb;text-transform:none;letter-spacing:0;font-weight:500;line-height:1.5;color:color-mix(in srgb,var(--paper) 72%,transparent)}.pathway{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.path-card{padding:clamp(28px,4vw,48px);border-right:1px solid var(--line);min-height:280px}.editorial-cover{text-align:center;align-content:center}.editorial-cover h1{margin-left:auto;margin-right:auto;font-size:clamp(54px,8vw,118px)}.editorial-cover>p{margin-left:auto;margin-right:auto}.pull-quote{padding:clamp(44px,8vw,100px) clamp(22px,9vw,130px);background:var(--dark);color:var(--paper);text-align:center}.pull-quote h2{font-family:Georgia,serif;font-size:clamp(40px,7vw,96px);line-height:.94;letter-spacing:-.06em;margin:18px auto;max-width:1100px}.pull-quote p{color:color-mix(in srgb,var(--paper) 72%,transparent);font-size:20px;line-height:1.7;max-width:760px;margin:0 auto}.editorial-columns{columns:3 260px;column-gap:0;border-top:1px solid var(--line)}.column-card{break-inside:avoid;padding:34px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:250px}.showroom-opening{background:linear-gradient(180deg,color-mix(in srgb,var(--dark) 92%,var(--paper) 8%),var(--paper));color:var(--paper)}.showroom-opening nav .badge{color:var(--ink)}.showroom-reveal{align-self:end;display:grid;grid-template-columns:1fr .62fr;gap:32px;align-items:end;position:relative;z-index:1}.showroom-reveal strong{display:block;font-size:13px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:20px;color:var(--signal)}.showroom-reveal p{color:color-mix(in srgb,var(--paper) 76%,transparent)}.material-wall{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:16px;padding:clamp(34px,6vw,80px);background:var(--soft)}.material-card{background:var(--paper);border:1px solid var(--line);padding:30px;min-height:320px}.material-card:nth-child(2){transform:translateY(44px)}.staggered-showroom{padding:clamp(34px,6vw,80px);display:grid;grid-template-columns:repeat(6,1fr);gap:18px}.showroom-card{grid-column:span 3;border:1px solid var(--line);padding:30px;min-height:280px;background:color-mix(in srgb,var(--paper) 80%,white 20%)}.showroom-card.tall{min-height:380px}.founder-opening{background:linear-gradient(90deg,var(--paper) 0 56%,var(--dark) 56% 100%)}.founder-field{align-self:center;display:grid;grid-template-columns:.22fr 1fr .45fr;gap:28px;align-items:center}.signature-line{writing-mode:vertical-rl;font-family:Georgia,serif;font-size:clamp(36px,6vw,80px);line-height:.85;letter-spacing:-.06em;color:var(--accent)}.founder-field .signature{background:var(--dark);color:var(--paper)}.founder-field .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}.corridor{padding:clamp(34px,6vw,80px);display:grid;gap:0;background:var(--paper)}.corridor article{display:grid;grid-template-columns:90px 1fr;gap:26px;border-top:1px solid var(--line);padding:28px 0}.corridor article:last-child{border-bottom:1px solid var(--line)}.corridor span{font-size:12px;font-weight:950;letter-spacing:.18em;color:var(--accent)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.footerline{margin-top:34px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}
+[data-brand-focus="true"] .brand-dominant{font-size:clamp(50px,7.6vw,110px)}[data-brand-focus="true"] .copy h1{font-size:clamp(30px,4.2vw,56px);line-height:.98;max-width:760px}.signal-node{z-index:1}.showroom-opening .brand-dominant{color:color-mix(in srgb,var(--paper) 90%,transparent);font-size:clamp(52px,7.4vw,114px);max-width:900px}.showroom-reveal{align-self:center;grid-template-columns:.95fr .68fr}.showroom-reveal h1{font-size:clamp(38px,5.4vw,74px);max-width:820px}
+[data-brand-focus="true"] .brand-dominant{font-size:clamp(44px,6.4vw,90px);line-height:.82}[data-brand-focus="true"] .copy h1{font-size:clamp(26px,3.2vw,44px);line-height:1;max-width:620px}[data-brand-focus="true"] .copy p{font-size:clamp(15px,1.55vw,19px);line-height:1.5}.action-rail p{display:none}
+@media(max-width:980px){.axis-grid,.private-grid,.command-grid,.showroom-reveal,.founder-field,.invitation-panel,.contact{grid-template-columns:1fr}.proof-band,.pathway,.material-wall,.ledger{grid-template-columns:1fr}.proof-slab,.path-card{border-right:0;border-bottom:1px solid var(--line)}.experience-wall,.staggered-showroom{grid-template-columns:1fr}.idea-card,.idea-card:nth-child(3n),.idea-card:nth-child(4n),.showroom-card{grid-column:auto}.idea-card:nth-child(2n),.material-card:nth-child(2){transform:none}.signal-map{min-height:auto;display:grid;gap:12px;padding:16px}.signal-map:before{display:none}.signal-node{position:relative;width:100%;inset:auto}.action-rail{writing-mode:horizontal-tb}.founder-opening{background:var(--paper)}.signature-line{writing-mode:horizontal-tb}.ledger{gap:1px}}
+@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.opening{min-height:86vh;padding:24px 22px}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.signature{border-radius:18px}.brand-dominant{font-size:clamp(50px,16vw,84px)}.copy h1,.editorial-cover h1,.showroom-reveal h1{font-size:clamp(42px,14vw,70px)}.contact{padding:32px 22px}.corridor article{grid-template-columns:1fr}.editorial-columns{columns:1}}
 </style>
 </head>
 <body>
-<main class="page" data-layout="${escapeHtml(data.layoutClass || "split-axis")}" data-brand-focus="${brandFocus}">
-<section class="hero">
-<nav><div>${escapeHtml(data.websiteTitle)}</div><div class="badge">${escapeHtml(data.purpose)} Website | {{CITY}}</div></nav>
-<div class="hero-grid">
-<div class="copy"><div class="kicker">${escapeHtml(data.eyebrow)}</div>${brandDominance}<h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p><div class="actions"><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><a class="secondary" href="#experience">${escapeHtml(data.secondaryCta)}</a></div></div>
-<aside class="signature"><small>${escapeHtml(heroBadge.label)}</small><strong>${escapeHtml(heroBadge.title)}</strong><p>${escapeHtml(heroBadge.body)}</p></aside>
-</div>
-</section>
-<section class="proof" id="details">${proofItems}</section>
-<section class="experience" id="experience">${experienceSections}</section>
-<section class="contact"><h2>${escapeHtml(data.contactHeadline)}</h2><div><p>${escapeHtml(data.contactBody)}</p><p>${escapeHtml(data.contactLine)}</p><p>${escapeHtml(data.socials)}</p><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><div class="footerline">${escapeHtml(data.footerLine)}</div></div></section>
+<main class="page" data-layout="${escapeHtml(layout)}" data-brand-focus="${data.purpose === "Business" ? "true" : "false"}">
+${body}
 </main>
 </body>
 </html>`;
