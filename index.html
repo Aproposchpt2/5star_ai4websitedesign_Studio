@@ -6,16 +6,20 @@
   <title>AI4 Website Design Studio</title>
   <style>
     :root {
-      --bg: #04070d;
-      --panel: rgba(9, 17, 28, .86);
-      --ink: #f7f4ea;
-      --muted: #aab2bd;
-      --line: rgba(247, 244, 234, .14);
-      --cyan: #5bd7ff;
-      --gold: #d6a84f;
-      --green: #56d58a;
-      --paper: #fff5df;
-      --espresso: #18110b;
+      --bg: #030914;
+      --panel: rgba(5, 14, 27, .88);
+      --ink: #eef7ff;
+      --muted: #93a7bc;
+      --line: rgba(98, 211, 255, .16);
+      --cyan: #45d6ff;
+      --cyan2: #9beeff;
+      --blue: #167dff;
+      --silver: #d8e8f5;
+      --steel: #6f89a7;
+      --gold: #d8e8f5;
+      --green: #167dff;
+      --paper: #eef7ff;
+      --espresso: #020710;
     }
 
     * { box-sizing: border-box; }
@@ -24,9 +28,10 @@
     body {
       margin: 0;
       background:
-        radial-gradient(circle at 16% 12%, rgba(214, 168, 79, .18), transparent 30%),
-        radial-gradient(circle at 78% 18%, rgba(91, 215, 255, .18), transparent 34%),
-        linear-gradient(180deg, #04070d 0%, #10151b 52%, #050607 100%);
+        radial-gradient(circle at 50% 22%, rgba(43, 178, 255, .26), transparent 32%),
+        radial-gradient(circle at 74% 8%, rgba(155, 238, 255, .12), transparent 28%),
+        radial-gradient(circle at 50% 86%, rgba(0, 153, 255, .15), transparent 38%),
+        linear-gradient(180deg, #020710 0%, #061d34 48%, #020914 100%);
       color: var(--ink);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       overflow-x: hidden;
@@ -38,9 +43,9 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
-      background-size: 58px 58px;
+        linear-gradient(rgba(111, 210, 255, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111, 210, 255, .045) 1px, transparent 1px);
+      background-size: 72px 72px;
       mask-image: linear-gradient(to bottom, black, transparent 82%);
       z-index: -2;
     }
@@ -48,14 +53,14 @@
     button, input, textarea, select { font: inherit; }
 
     .topbar {
-      min-height: 92px;
+      min-height: 96px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 24px;
       padding: 16px clamp(18px, 4vw, 56px);
       border-bottom: 1px solid var(--line);
-      background: rgba(4, 7, 13, .84);
+      background: rgba(2, 7, 18, .94);
       backdrop-filter: blur(18px);
       position: sticky;
       top: 0;
@@ -65,23 +70,35 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 18px;
       min-width: 0;
     }
 
-    .mark {
-      width: 56px;
-      height: 56px;
+    .logo-box {
+      width: 124px;
+      height: 70px;
       display: grid;
       place-items: center;
-      border-radius: 18px;
-      border: 1px solid rgba(214, 168, 79, .58);
-      background: linear-gradient(145deg, #19120a, #362513 55%, #071622);
-      color: #ffe4a6;
+      border: 1px solid rgba(69, 214, 255, .17);
+      background: #020710;
+      box-shadow: 0 18px 54px rgba(0, 0, 0, .5), 0 0 36px rgba(69, 214, 255, .08);
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .logo-fallback {
+      display: none;
+      color: var(--cyan2);
       font-weight: 1000;
       letter-spacing: -.04em;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, .32);
-      flex: 0 0 auto;
     }
 
     .brand strong {
@@ -116,7 +133,7 @@
       white-space: nowrap;
     }
 
-    .navlinks a:hover { color: var(--ink); }
+    .navlinks a:hover { color: var(--cyan2); }
 
     .btn {
       appearance: none;
@@ -129,127 +146,127 @@
       padding: 14px 22px;
       border-radius: 999px;
       color: #051018;
-      background: linear-gradient(135deg, #fff9e9, #73ddff 58%, #56d58a);
+      background: linear-gradient(135deg, #e7fbff 0%, #8aeaff 50%, #42c7ff 100%);
       font-weight: 1000;
       text-decoration: none;
-      box-shadow: 0 14px 44px rgba(91, 215, 255, .18);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .28) inset, 0 14px 42px rgba(50, 202, 255, .25);
       white-space: nowrap;
     }
 
     .btn.dark {
-      background: #0e0d0b;
-      color: #fff4dc;
-      border: 1px solid rgba(214, 168, 79, .3);
+      background: rgba(255, 255, 255, .045);
+      color: var(--ink);
+      border: 1px solid rgba(122, 216, 255, .2);
     }
 
     .btn.ghost {
-      background: rgba(255, 255, 255, .055);
+      background: rgba(255, 255, 255, .045);
       color: var(--ink);
       border: 1px solid var(--line);
       box-shadow: none;
     }
 
     .hero {
-      min-height: calc(100vh - 92px);
+      min-height: calc(100vh - 170px);
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(360px, .86fr);
-      gap: clamp(28px, 5vw, 72px);
-      align-items: center;
-      padding: clamp(42px, 6vw, 84px) clamp(18px, 5vw, 72px);
+      place-items: center;
+      text-align: center;
+      padding: clamp(34px, 5vw, 56px) clamp(18px, 5vw, 72px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-inner {
+      width: min(1080px, 100%);
+      position: relative;
+      z-index: 1;
     }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
-      color: var(--gold);
+      gap: 16px;
+      color: var(--cyan);
       font-size: 12px;
-      letter-spacing: .2em;
+      letter-spacing: .32em;
       text-transform: uppercase;
       font-weight: 950;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
-    .eyebrow::before {
+    .eyebrow::before,
+    .eyebrow::after {
       content: "";
-      width: 44px;
+      width: 32px;
       height: 1px;
-      background: var(--gold);
+      background: linear-gradient(90deg, transparent, var(--cyan));
     }
+
+    .eyebrow::after { background: linear-gradient(90deg, var(--cyan), transparent); }
 
     h1, h2, h3, p { margin-top: 0; }
 
     .headline {
-      max-width: 980px;
-      margin-bottom: 28px;
-      font-size: clamp(52px, 8vw, 104px);
-      line-height: .88;
+      max-width: 1120px;
+      margin: 0 auto 22px;
+      font-size: clamp(44px, 6vw, 82px);
+      line-height: .93;
       letter-spacing: -.07em;
       font-weight: 1000;
+      color: #eff6ff;
+      text-shadow: 0 20px 80px rgba(0, 0, 0, .5);
     }
 
     .headline span {
-      background: linear-gradient(90deg, #fff7de, var(--cyan), var(--green));
+      background: linear-gradient(90deg, #eaf5ff, #5bd8ff 45%, #24bcff);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
 
     .subline {
-      max-width: 720px;
-      color: #c7c0b3;
-      font-size: clamp(18px, 1.8vw, 23px);
+      max-width: 760px;
+      margin: 0 auto 28px;
+      color: #9fb4c7;
+      font-size: clamp(17px, 1.55vw, 20px);
       line-height: 1.62;
-      margin-bottom: 34px;
     }
 
     .hero-actions {
       display: flex;
+      justify-content: center;
       gap: 14px;
       flex-wrap: wrap;
     }
 
-    .hero-media {
-      min-height: 520px;
-      border: 1px solid rgba(247, 244, 234, .18);
-      border-radius: 28px;
+    .hero-logo {
+      width: min(520px, 68vw);
+      aspect-ratio: 16 / 9;
+      margin: 0 auto 34px;
+      border: 1px solid rgba(120, 215, 255, .14);
       overflow: hidden;
       position: relative;
-      background: #070a0f;
-      box-shadow: 0 40px 120px rgba(0, 0, 0, .42);
+      background:
+        radial-gradient(circle at 50% 58%, rgba(48, 188, 255, .23), transparent 35%),
+        linear-gradient(145deg, #02040a, #070b15 52%, #02040a);
+      box-shadow: 0 35px 110px rgba(0, 0, 0, .6), 0 0 90px rgba(44, 171, 255, .16);
     }
 
-    .hero-media img {
+    .hero-logo-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
       display: block;
-      filter: saturate(1.06) contrast(1.05);
+      filter: drop-shadow(0 24px 60px rgba(0, 0, 0, .52)) drop-shadow(0 0 30px rgba(30, 167, 255, .22));
     }
-
-    .media-label {
-      position: absolute;
-      left: 20px;
-      right: 20px;
-      bottom: 20px;
-      display: grid;
-      gap: 8px;
-      padding: 18px;
-      border: 1px solid rgba(255, 255, 255, .16);
-      border-radius: 18px;
-      background: rgba(5, 7, 12, .72);
-      backdrop-filter: blur(18px);
-    }
-
-    .media-label strong { font-size: 18px; }
-    .media-label span { color: #c7c0b3; line-height: 1.45; }
 
     .studio-panels {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      background: rgba(5, 8, 13, .48);
+      background: rgba(2, 9, 19, .56);
     }
 
     .studio-panel {
@@ -265,7 +282,7 @@
       margin-bottom: 20px;
       color: var(--cyan);
       font-size: 11px;
-      letter-spacing: .2em;
+      letter-spacing: .26em;
       text-transform: uppercase;
       font-weight: 950;
     }
@@ -286,36 +303,39 @@
 
     .statement {
       padding: clamp(60px, 8vw, 110px) clamp(18px, 5vw, 72px);
-      display: grid;
-      grid-template-columns: minmax(280px, .9fr) minmax(320px, 1fr);
-      gap: clamp(24px, 6vw, 74px);
-      align-items: start;
-      background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(214, 168, 79, .08));
+      text-align: center;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(69, 214, 255, .055));
     }
 
     .statement h2 {
-      margin: 0;
+      max-width: 960px;
+      margin: 0 auto 20px;
       font-size: clamp(42px, 6vw, 82px);
       line-height: .92;
       letter-spacing: -.07em;
     }
 
     .statement p {
-      color: #d7ccba;
+      max-width: 780px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #9fb4c7;
       font-size: clamp(17px, 1.7vw, 22px);
       line-height: 1.72;
     }
 
     .process {
-      padding: 78px clamp(18px, 5vw, 72px);
-      background: #fff5df;
-      color: #17110c;
+      padding: 40px clamp(18px, 5vw, 72px) 88px;
+      background: rgba(2, 7, 18, .28);
+      color: var(--ink);
     }
 
     .process-head {
       display: flex;
-      justify-content: space-between;
-      align-items: end;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
       gap: 24px;
       margin-bottom: 28px;
     }
@@ -330,15 +350,25 @@
     .steps {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 1px;
-      border: 1px solid rgba(23, 17, 12, .16);
-      background: rgba(23, 17, 12, .16);
+      gap: 14px;
+      border: 0;
+      background: transparent;
     }
 
     .step {
-      min-height: 210px;
-      padding: 28px 22px;
-      background: #fff9ed;
+      min-height: 230px;
+      padding: 28px 20px;
+      border: 1px solid rgba(122, 216, 255, .18);
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(69, 214, 255, .12), transparent 48%),
+        linear-gradient(145deg, rgba(7, 20, 38, .92), rgba(3, 9, 20, .94));
+      box-shadow: 0 28px 90px rgba(0, 0, 0, .24), 0 0 70px rgba(54, 200, 255, .08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .step strong {
@@ -347,8 +377,8 @@
       width: 38px;
       height: 38px;
       border-radius: 999px;
-      background: #17110c;
-      color: #fff0c4;
+      background: linear-gradient(135deg, #e7fbff, #42c7ff);
+      color: #02101c;
       margin-bottom: 24px;
     }
 
@@ -361,15 +391,15 @@
 
     .step p {
       margin: 0;
-      color: #655a4c;
+      color: var(--muted);
       line-height: 1.55;
     }
 
     .intake {
       padding: clamp(70px, 8vw, 110px) clamp(18px, 5vw, 72px);
       background:
-        radial-gradient(circle at 72% 20%, rgba(86, 213, 138, .16), transparent 34%),
-        linear-gradient(180deg, #07101a, #050607);
+        radial-gradient(circle at 50% 18%, rgba(43, 178, 255, .2), transparent 30%),
+        linear-gradient(180deg, rgba(2, 7, 18, .1), rgba(2, 7, 18, .55));
     }
 
     .intake-shell {
@@ -378,10 +408,10 @@
     }
 
     .builder-card, .member-card {
-      border: 1px solid rgba(247, 244, 234, .17);
+      border: 1px solid rgba(101, 214, 255, .18);
       border-radius: 24px;
-      background: linear-gradient(145deg, rgba(14, 21, 33, .94), rgba(5, 7, 12, .94));
-      box-shadow: 0 28px 90px rgba(0, 0, 0, .34);
+      background: linear-gradient(145deg, rgba(7, 20, 38, .96), rgba(3, 9, 20, .96));
+      box-shadow: 0 28px 90px rgba(0, 0, 0, .42), 0 0 90px rgba(54, 200, 255, .12);
       padding: clamp(24px, 4vw, 44px);
     }
 
@@ -415,7 +445,7 @@
       height: 100%;
       width: 20%;
       border-radius: inherit;
-      background: linear-gradient(90deg, var(--gold), var(--cyan), var(--green));
+      background: linear-gradient(90deg, #e7fbff, var(--cyan), var(--blue));
       transition: width .24s ease;
     }
 
@@ -440,7 +470,7 @@
       min-height: 72px;
       padding: 18px 20px;
       border-radius: 18px;
-      border: 1px solid rgba(247, 244, 234, .14);
+      border: 1px solid rgba(122, 216, 255, .18);
       background: rgba(255, 255, 255, .055);
       color: var(--ink);
       text-align: left;
@@ -469,7 +499,7 @@
 
     input, textarea, select {
       width: 100%;
-      border: 1px solid rgba(247, 244, 234, .15);
+      border: 1px solid rgba(122, 216, 255, .18);
       border-radius: 16px;
       padding: 16px 17px;
       color: var(--ink);
@@ -497,9 +527,9 @@
       display: inline-flex;
       margin-bottom: 18px;
       border-radius: 999px;
-      border: 1px solid rgba(214, 168, 79, .34);
-      background: rgba(214, 168, 79, .09);
-      color: #ffd481;
+      border: 1px solid rgba(155, 238, 255, .28);
+      background: rgba(69, 214, 255, .08);
+      color: var(--cyan2);
       padding: 9px 13px;
       font-size: 11px;
       letter-spacing: .17em;
@@ -521,20 +551,20 @@
     }
 
     @media (max-width: 1080px) {
-      .hero { grid-template-columns: 1fr; }
-      .hero-media { min-height: 420px; }
       .studio-panels, .statement { grid-template-columns: 1fr; }
       .studio-panel { border-right: 0; border-bottom: 1px solid var(--line); }
       .steps { grid-template-columns: repeat(2, 1fr); }
+      .step { border-radius: 32px; }
       .step:last-child { grid-column: 1 / -1; }
     }
 
     @media (max-width: 720px) {
       .topbar { align-items: flex-start; flex-direction: column; }
+      .logo-box { width: 102px; height: 62px; }
       .navlinks { width: 100%; justify-content: space-between; }
       .navlinks a { display: none; }
       .hero { min-height: auto; }
-      .hero-media { min-height: 320px; border-radius: 20px; }
+      .hero-logo { width: min(430px, 92vw); margin-bottom: 34px; }
       .process-head { align-items: flex-start; flex-direction: column; }
       .steps, .fields, .contact-fields { grid-template-columns: 1fr; }
       .step:last-child { grid-column: auto; }
@@ -548,7 +578,10 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="mark" aria-hidden="true">AI4</div>
+      <div class="logo-box">
+        <img src="assets/ai4-approved-logo.png" alt="AI4 Website Design" class="brand-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
+        <div class="logo-fallback" aria-hidden="true">AI4</div>
+      </div>
       <div>
         <strong>AI4 Website Design Studio</strong>
         <small>Powered by Apropos Group LLC</small>
@@ -563,8 +596,11 @@
 
   <main>
     <section class="hero">
-      <div>
+      <div class="hero-inner">
         <div class="eyebrow">Purpose-First Website Engine</div>
+        <div class="hero-logo">
+          <img src="assets/ai4-approved-logo.png" alt="AI4 Website Design" class="hero-logo-img" />
+        </div>
         <h1 class="headline">A platinum presence <span>online.</span><br />Built today.</h1>
         <p class="subline">AI4 turns a focused intake into a polished website direction, preview, and launch-ready HTML without forcing customers to choose colors, fonts, or layouts.</p>
         <div class="hero-actions">
@@ -572,13 +608,6 @@
           <a class="btn ghost" href="#difference">Why AI4 Is Different</a>
         </div>
       </div>
-      <figure class="hero-media">
-        <img src="assets/ai4-hero.png" alt="Premium AI website design workspace with layered interface panels" />
-        <figcaption class="media-label">
-          <strong>Strategy first. Design follows.</strong>
-          <span>The preview engine translates purpose, audience, trust, and action into a custom single-page website.</span>
-        </figcaption>
-      </figure>
     </section>
 
     <section class="studio-panels" id="difference" aria-label="AI4 differentiators">
