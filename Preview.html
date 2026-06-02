@@ -214,8 +214,8 @@
         <h1 id="title">Generated Website</h1>
         <p id="summary">The website preview is loading.</p>
         <div class="meta">
-          <div><strong>Design System</strong><span id="designSystem">AI4 Preview</span></div>
-          <div><strong>Visual Signature</strong><span id="visualSignature">Purpose-led website direction</span></div>
+          <div><strong>Homepage Focus</strong><span id="designSystem">Website preview</span></div>
+          <div><strong>Customer Message</strong><span id="visualSignature">Purpose-led website direction</span></div>
           <div><strong>Contact</strong><span id="contactLine">Available in the generated site</span></div>
         </div>
       </aside>
@@ -328,9 +328,9 @@
     function render() {
       const { data, html } = currentPreview();
       $("title").textContent = data.websiteTitle || "Generated Website";
-      $("summary").textContent = data.creativeDirection || "A purpose-built website direction created by AI4 Design Studio.";
-      $("designSystem").textContent = data.designSystem || "AI4 5-Karat Direction";
-      $("visualSignature").textContent = data.visualSignature || "Purpose-led website direction";
+      $("summary").textContent = data.subheadline || data.contactBody || "A purpose-built website preview created from the intake.";
+      $("designSystem").textContent = data.purpose === "Business" ? `${data.websiteTitle} leads the homepage.` : `${data.purpose || "Website"} preview`;
+      $("visualSignature").textContent = data.headline || "The homepage message is ready for review.";
       $("contactLine").textContent = data.contactLine || "Available in the generated site";
       $("previewFrame").srcdoc = html;
 

@@ -1024,6 +1024,100 @@
       };
     }
 
+    function buildPublicCards(purpose, profile, cta) {
+      if (purpose === "Business") {
+        return [
+          {
+            label: "What We Do",
+            title: profile.description,
+            body: `${profile.brandName} helps ${profile.audience} ${profile.outcome} through focused expertise, clear standards, and polished execution.`
+          },
+          {
+            label: "Who We Serve",
+            title: `Built for ${profile.audience}.`,
+            body: `The experience is shaped for clients who value clarity, trust, and a professional path from first conversation to finished result.`
+          },
+          {
+            label: "Why It Matters",
+            title: `Confidence before the decision.`,
+            body: `Every detail is designed to make the next step easier, more informed, and more dependable.`
+          },
+          {
+            label: "How It Works",
+            title: `A clearer path to ${profile.outcome}.`,
+            body: `Visitors can understand the offer, see the standard of work, and move toward ${cta} without friction.`
+          },
+          {
+            label: "Next Step",
+            title: cta,
+            body: `Start with a focused conversation about goals, timing, and what success should look like.`
+          }
+        ];
+      }
+
+      if (purpose === "Personal") {
+        return [
+          {
+            label: "Profile",
+            title: profile.description,
+            body: `${profile.brandName} is presented with clarity, credibility, and a focused sense of direction.`
+          },
+          {
+            label: "Audience",
+            title: `For ${profile.audience}.`,
+            body: `The page helps the right people quickly understand the person, the work, and the opportunity.`
+          },
+          {
+            label: "Impression",
+            title: profile.outcome,
+            body: `The homepage is shaped to create a confident first impression and a natural next step.`
+          }
+        ];
+      }
+
+      return [
+        {
+          label: "Topics",
+          title: profile.description,
+          body: `${profile.brandName} gives readers a focused place to explore ideas with clarity and perspective.`
+        },
+        {
+          label: "Readers",
+          title: `For ${profile.audience}.`,
+          body: `The experience is built for people who want signal, usefulness, and a reason to return.`
+        },
+        {
+          label: "Promise",
+          title: profile.outcome,
+          body: `Each visit should leave readers with a sharper understanding than they had before.`
+        }
+      ];
+    }
+
+    function buildHeroBadge(purpose, profile) {
+      if (purpose === "Business") {
+        return {
+          label: `Why ${profile.brandName}`,
+          title: "Built for confident decisions.",
+          body: `${profile.brandName} gives ${profile.audience} a clearer, more trustworthy path to ${profile.outcome}.`
+        };
+      }
+
+      if (purpose === "Personal") {
+        return {
+          label: "Personal Presence",
+          title: "Clear, credible, and memorable.",
+          body: `${profile.brandName} is presented with the polish needed to create ${profile.outcome}.`
+        };
+      }
+
+      return {
+        label: "Editorial Presence",
+        title: "Ideas worth returning to.",
+        body: `${profile.brandName} is built to help ${profile.audience} ${profile.outcome}.`
+      };
+    }
+
     function getDesignSystem(purpose, profile, cta) {
       const input = {
         brandName: profile.brandName,
@@ -1064,6 +1158,8 @@
       const answers = state.answers;
       const cta = state.contact.cta || "Contact Me";
       const profile = getIntakeProfile(purpose, answers);
+      const publicCards = buildPublicCards(purpose, profile, cta);
+      const heroBadge = buildHeroBadge(purpose, profile);
       const socials = state.contact.socials
         .split(/\n|,/)
         .map(item => item.trim())
@@ -1131,6 +1227,8 @@
         firstViewport: system.firstViewport,
         colorMood: system.colorMood,
         palette: system.palette,
+        publicCards,
+        heroBadge,
         qualityScore: system.quality.score,
         qualityStatus: system.quality.status,
         qualityNotes: system.quality.requirements,
@@ -1142,13 +1240,22 @@
 
     function buildWebsiteHtml(data) {
       const palette = data.palette || {};
-      const sectionPlan = Array.isArray(data.sectionPlan) ? data.sectionPlan : [];
-      const experienceSections = sectionPlan.map((item, index) => `
+      const publicCards = Array.isArray(data.publicCards) && data.publicCards.length ? data.publicCards : [
+        { label: "Value", title: "Built for the right first impression.", body: data.valueStatement },
+        { label: "Trust", title: data.trustHeadline, body: data.trustBody },
+        { label: "Next Step", title: data.primaryCta, body: data.contactBody }
+      ];
+      const heroBadge = data.heroBadge || {
+        label: data.websiteTitle,
+        title: data.trustHeadline,
+        body: data.trustBody
+      };
+      const experienceSections = publicCards.map((item, index) => `
         <article class="experience-card" style="--i:${index + 1}">
           <div class="num">${String(index + 1).padStart(2, "0")}</div>
-          <small>${escapeHtml(item.emphasis || "direction")}</small>
-          <h2>${escapeHtml(item.sectionName)}</h2>
-          <p>${escapeHtml(item.headlineDirection)}</p>
+          <small>${escapeHtml(item.label)}</small>
+          <h2>${escapeHtml(item.title)}</h2>
+          <p>${escapeHtml(item.body)}</p>
         </article>`).join("");
       const proofItems = [
         { label: "Value", title: "Built for the right first impression.", body: data.valueStatement },
@@ -1171,7 +1278,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>${escapeHtml(data.websiteTitle)}</title>
-<!-- AI4_AGENT_DIRECTIVE: custom concept, unique section rhythm, no Squarespace-style template execution. -->
 <style>
 :root{--paper:${escapeHtml(palette.paper || "#fff5df")};--ink:${escapeHtml(palette.ink || "#17110c")};--muted:${escapeHtml(palette.muted || "#655a4c")};--dark:${escapeHtml(palette.dark || "#100d0a")};--accent:${escapeHtml(palette.accent || "#c89b4f")};--signal:${escapeHtml(palette.signal || "#4ec9f5")};--soft:${escapeHtml(palette.soft || "#f4e5c7")};--line:color-mix(in srgb,var(--ink) 16%,transparent)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 82% 16%,color-mix(in srgb,var(--signal) 18%,transparent),transparent 34%),radial-gradient(circle at 8% 86%,color-mix(in srgb,var(--accent) 17%,transparent),transparent 30%),linear-gradient(90deg,color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),linear-gradient(color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1px),var(--paper);background-size:auto,auto,46px 46px,46px 46px,auto}.hero{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.hero:before{content:"";position:absolute;inset:15vh -15vw auto auto;width:48vw;height:48vw;min-width:300px;min-height:300px;border:1px solid color-mix(in srgb,var(--accent) 62%,transparent);border-radius:50%;box-shadow:inset 0 0 0 8vw color-mix(in srgb,var(--signal) 8%,transparent),0 0 130px color-mix(in srgb,var(--signal) 18%,transparent);pointer-events:none}.hero:after{content:"";position:absolute;left:clamp(22px,6vw,82px);right:clamp(22px,6vw,82px);bottom:30px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:1}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.hero-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end;position:relative;z-index:1}.kicker{color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:950;margin-bottom:22px}.brand-dominant{font-family:Georgia,serif;font-size:clamp(70px,11vw,160px);line-height:.78;letter-spacing:-.08em;max-width:980px;margin:0 0 22px;color:var(--ink)}.copy h1{font-family:Georgia,serif;font-size:clamp(46px,7.2vw,98px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:980px}.copy p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent)}.signature small,.proof-item small,.experience-card small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p{margin:0;color:var(--muted);line-height:1.65}.proof{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-item{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-item:last-child{border-right:0}.proof-item h2,.experience-card h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:26px 0 16px}.proof-item p,.experience-card p{color:var(--muted);line-height:1.7;margin:0}.experience{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.experience-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.experience-card:nth-child(2n){transform:translateY(36px)}.experience-card:nth-child(3n){grid-column:span 5}.experience-card:nth-child(4n){grid-column:span 7}.experience-card:after{content:"";position:absolute;right:-18%;bottom:-20%;width:62%;aspect-ratio:1;border-radius:50%;background:color-mix(in srgb,var(--signal) 12%,transparent);filter:blur(12px)}.experience-card>*{position:relative;z-index:1}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:42px;color:var(--ink)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.footerline{margin-top:34px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}[data-brand-focus="true"] .hero-grid{grid-template-columns:minmax(0,1fr) minmax(270px,.34fr)}[data-brand-focus="true"] .copy h1{font-size:clamp(30px,3.8vw,56px);line-height:1;letter-spacing:-.04em;max-width:760px}[data-layout="private-index"] .hero-grid{grid-template-columns:.72fr 1fr;align-items:center}[data-layout="private-index"] .copy{order:2}[data-layout="private-index"] .signature{order:1}[data-layout="signal-atlas"] .hero-grid{grid-template-columns:1fr .55fr}[data-layout="signal-atlas"] .signature{border-radius:8px}[data-layout="editorial-arc"] .proof{grid-template-columns:.8fr 1.2fr 1fr}[data-layout="editorial-arc"] .copy h1{max-width:1180px}[data-layout="showroom-grid"] .experience-card{border-radius:8px}[data-layout="founder-field"] .hero-grid{grid-template-columns:1fr .7fr}[data-layout="founder-field"] .signature{background:var(--dark);color:var(--paper)}[data-layout="founder-field"] .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}@media(max-width:900px){.hero-grid,.proof,.contact,[data-layout] .hero-grid,[data-brand-focus="true"] .hero-grid{grid-template-columns:1fr}.proof-item{border-right:0;border-bottom:1px solid var(--line)}.experience{grid-template-columns:1fr}.experience-card,.experience-card:nth-child(3n),.experience-card:nth-child(4n){grid-column:auto}.experience-card:nth-child(2n){transform:none}}@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.hero{min-height:86vh}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.hero:before{right:-45vw}.signature{border-radius:18px}.brand-dominant{font-size:clamp(54px,16vw,86px)}.experience-card{min-height:240px}}
 </style>
@@ -1182,12 +1288,12 @@
 <nav><div>${escapeHtml(data.websiteTitle)}</div><div class="badge">${escapeHtml(data.purpose)} Website | {{CITY}}</div></nav>
 <div class="hero-grid">
 <div class="copy"><div class="kicker">${escapeHtml(data.eyebrow)}</div>${brandDominance}<h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p><div class="actions"><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><a class="secondary" href="#experience">${escapeHtml(data.secondaryCta)}</a></div></div>
-<aside class="signature"><small>${escapeHtml(data.designSystem || "AI4 Custom System")}</small><strong>${escapeHtml(data.conceptLane || "Purpose-built direction")}</strong><p>${escapeHtml(data.visualSignature || "A custom visual signature built from the intake.")}</p></aside>
+<aside class="signature"><small>${escapeHtml(heroBadge.label)}</small><strong>${escapeHtml(heroBadge.title)}</strong><p>${escapeHtml(heroBadge.body)}</p></aside>
 </div>
 </section>
 <section class="proof" id="details">${proofItems}</section>
 <section class="experience" id="experience">${experienceSections}</section>
-<section class="contact"><h2>${escapeHtml(data.contactHeadline)}</h2><div><p>${escapeHtml(data.contactBody)}</p><p>${escapeHtml(data.contactLine)}</p><p>${escapeHtml(data.socials)}</p><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><div class="footerline">${escapeHtml(data.footerLine)} Quality gate: ${escapeHtml(data.qualityStatus || "approved")} ${escapeHtml(String(data.qualityScore || ""))}</div></div></section>
+<section class="contact"><h2>${escapeHtml(data.contactHeadline)}</h2><div><p>${escapeHtml(data.contactBody)}</p><p>${escapeHtml(data.contactLine)}</p><p>${escapeHtml(data.socials)}</p><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><div class="footerline">${escapeHtml(data.footerLine)}</div></div></section>
 </main>
 </body>
 </html>`;
