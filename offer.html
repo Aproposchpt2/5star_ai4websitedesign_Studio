@@ -196,6 +196,7 @@
       <div class="brand"><div class="mark" aria-hidden="true">AI4</div><span>AI4 Website Design Studio</span></div>
       <nav>
         <a class="btn light" href="Preview.html">Back to Preview</a>
+        <button class="btn light" id="startFreshOffer" type="button">Start Fresh</button>
         <a class="btn light" href="index.html">Home</a>
       </nav>
     </header>
@@ -233,6 +234,29 @@
       }
     }
 
+    const buildStorageKeys = [
+      "ai4_answers",
+      "ai4_member",
+      "fiveKaratPreview",
+      "ai4_site_data",
+      "ai4_email",
+      "ai4_phone",
+      "ai4_name",
+      "ai4_full_name",
+      "ai4_built_html",
+      "ai4_preview_palette",
+      "ai4_preview_treatment",
+      "ai4_selected_style",
+      "ai4_last_layout"
+    ];
+
+    function clearBuildStorage() {
+      buildStorageKeys.forEach(key => {
+        try { localStorage.removeItem(key); } catch (_) {}
+        try { sessionStorage.removeItem(key); } catch (_) {}
+      });
+    }
+
     const member = readJson("ai4_member");
     const preview = readJson("fiveKaratPreview");
     const email = member && member.email ? member.email : "";
@@ -246,6 +270,10 @@
     const subject = encodeURIComponent(`AI4 launch review for ${siteTitle}`);
     const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nWebsite: ${siteTitle}\n\nI would like to review the generated website and next launch steps.`);
     document.getElementById("mailto").href = `mailto:hello@example.com?subject=${subject}&body=${body}`;
+    document.getElementById("startFreshOffer").addEventListener("click", () => {
+      clearBuildStorage();
+      window.location.href = "index.html#builder";
+    });
   </script>
 </body>
 </html>

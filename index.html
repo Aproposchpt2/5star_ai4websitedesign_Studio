@@ -239,6 +239,45 @@
       flex-wrap: wrap;
     }
 
+    .resume-panel {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      width: min(760px, 100%);
+      margin: 26px auto 0;
+      padding: 14px;
+      border: 1px solid rgba(122, 216, 255, .22);
+      border-radius: 18px;
+      background: rgba(2, 10, 24, .72);
+      box-shadow: 0 18px 54px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .04);
+      text-align: left;
+    }
+
+    .resume-panel.active { display: flex; }
+
+    .resume-copy strong {
+      display: block;
+      color: var(--ink);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .resume-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .resume-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+      flex: 0 0 auto;
+    }
+
     .hero-logo {
       width: min(520px, 68vw);
       aspect-ratio: 16 / 9;
@@ -615,6 +654,8 @@
       .step:last-child { grid-column: auto; }
       .actions, .hero-actions { flex-direction: column-reverse; }
       .btn { width: 100%; }
+      .resume-panel { align-items: stretch; flex-direction: column; }
+      .resume-actions { width: 100%; }
       .step-meta { align-items: flex-start; flex-direction: column; }
       .progress { width: 100%; }
     }
@@ -651,6 +692,16 @@
         <div class="hero-actions">
           <button class="btn" id="heroStart" type="button">Start Building</button>
           <a class="btn ghost" href="#difference">Why AI4 Is Different</a>
+        </div>
+        <div class="resume-panel" id="resumePanel" aria-live="polite">
+          <div class="resume-copy">
+            <strong>Saved website preview found.</strong>
+            <span id="resumeTitle">Continue where you left off, or start a clean new build.</span>
+          </div>
+          <div class="resume-actions">
+            <a class="btn" href="Preview.html">Continue Preview</a>
+            <button class="btn ghost" id="startFresh" type="button">Start Fresh</button>
+          </div>
         </div>
       </div>
     </section>
@@ -799,6 +850,21 @@
     const inputArea = $("inputArea");
     const backBtn = $("backBtn");
     const nextBtn = $("nextBtn");
+    const buildStorageKeys = [
+      "ai4_answers",
+      "ai4_member",
+      "fiveKaratPreview",
+      "ai4_site_data",
+      "ai4_email",
+      "ai4_phone",
+      "ai4_name",
+      "ai4_full_name",
+      "ai4_built_html",
+      "ai4_preview_palette",
+      "ai4_preview_treatment",
+      "ai4_selected_style",
+      "ai4_last_layout"
+    ];
 
     function escapeHtml(value) {
       return String(value || "")
@@ -837,6 +903,33 @@
 
     function storeJson(key, value) {
       storeValue(key, JSON.stringify(value));
+    }
+
+    function readJsonValue(key) {
+      try {
+        const raw = readStoredValue(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function clearBuildStorage() {
+      buildStorageKeys.forEach(key => {
+        try { localStorage.removeItem(key); } catch (_) {}
+        try { sessionStorage.removeItem(key); } catch (_) {}
+      });
+    }
+
+    function syncResumePanel() {
+      const panel = $("resumePanel");
+      if (!panel) return;
+      const hasPreview = Boolean(readStoredValue("ai4_built_html") || readStoredValue("fiveKaratPreview"));
+      panel.classList.toggle("active", hasPreview);
+      if (!hasPreview) return;
+      const preview = readJsonValue("fiveKaratPreview") || {};
+      const title = preview.websiteTitle || readStoredValue("ai4_name") || "your saved website";
+      $("resumeTitle").textContent = `Continue ${title}, or start a clean new build.`;
     }
 
     function displayName() {
@@ -1542,6 +1635,27 @@ ${body}
 
     ["topStart", "heroStart"].forEach(id => $(id).addEventListener("click", scrollBuilder));
 
+    $("startFresh").addEventListener("click", () => {
+      clearBuildStorage();
+      state.member = { firstName: "", lastName: "", email: "" };
+      state.step = 0;
+      state.purpose = "";
+      state.style = "dark-premium";
+      state.answers = {};
+      state.contact = {
+        email: "",
+        phone: "",
+        form: "Yes, include a contact form",
+        socials: "",
+        cta: "Contact Me"
+      };
+      questionCard.classList.remove("hidden");
+      memberCard.classList.remove("active");
+      syncResumePanel();
+      render();
+      scrollBuilder();
+    });
+
     inputArea.addEventListener("click", event => {
       const purposeButton = event.target.closest("[data-purpose]");
       if (purposeButton) {
@@ -1607,6 +1721,7 @@ ${body}
     });
 
     render();
+    syncResumePanel();
   </script>
 </body>
 </html>

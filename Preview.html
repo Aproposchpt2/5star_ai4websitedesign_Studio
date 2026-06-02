@@ -846,6 +846,7 @@
     </div>
     <div class="toolbar">
       <a class="btn" href="index.html#builder">Edit Answers</a>
+      <button class="btn" id="startFreshPreview" type="button">Start Fresh</button>
       <button class="btn" id="copyCode" type="button">Copy HTML</button>
       <button class="btn" id="downloadCode" type="button">Download HTML</button>
       <a class="btn primary" href="offer.html">Continue</a>
@@ -1063,6 +1064,21 @@
       selectedDevice: "desktop",
       previewObjectUrl: ""
     };
+    const buildStorageKeys = [
+      "ai4_answers",
+      "ai4_member",
+      "fiveKaratPreview",
+      "ai4_site_data",
+      "ai4_email",
+      "ai4_phone",
+      "ai4_name",
+      "ai4_full_name",
+      "ai4_built_html",
+      "ai4_preview_palette",
+      "ai4_preview_treatment",
+      "ai4_selected_style",
+      "ai4_last_layout"
+    ];
 
     function escapeHtml(value) {
       return String(value || "")
@@ -1084,6 +1100,13 @@
       try { localStorage.setItem(key, value); } catch (error) {
         try { sessionStorage.setItem(key, value); } catch (_) {}
       }
+    }
+
+    function clearBuildStorage() {
+      buildStorageKeys.forEach(key => {
+        try { localStorage.removeItem(key); } catch (_) {}
+        try { sessionStorage.removeItem(key); } catch (_) {}
+      });
     }
 
     function readJson(key) {
@@ -1350,6 +1373,10 @@
 
       $("copyCode").addEventListener("click", event => copyHtml(state.builtHtml, event.currentTarget));
       $("copyCodeBottom").addEventListener("click", event => copyHtml(state.builtHtml, event.currentTarget));
+      $("startFreshPreview").addEventListener("click", () => {
+        clearBuildStorage();
+        window.location.href = "index.html#builder";
+      });
       $("downloadCode").addEventListener("click", downloadCode);
       $("fullscreenBtn").addEventListener("click", () => toggleFullScreenPreview(true));
       $("exitFullscreen").addEventListener("click", () => toggleFullScreenPreview(false));
