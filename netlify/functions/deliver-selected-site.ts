@@ -53,10 +53,14 @@ async function sendResendEmail(options: {
   attachments?: Array<{ filename: string; content: string }>;
 }) {
   const apiKey = env("RESEND_API_KEY");
-  const from = env("RESEND_FROM_EMAIL") || "AI4 Website Design <jmitchell@ai4websitedesign.com>";
+  const from = env("RESEND_FROM_EMAIL");
 
   if (!apiKey) {
     throw new Error("RESEND_API_KEY is not configured.");
+  }
+
+  if (!from) {
+    throw new Error("RESEND_FROM_EMAIL is not configured.");
   }
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -169,8 +173,12 @@ export default async (req: Request) => {
     filename: fileName,
     content: Buffer.from(builtHtml, "utf8").toString("base64")
   };
-  const ownerEmail = env("AI4_INTERNAL_NOTIFICATION_EMAIL") || env("RESEND_TO_EMAIL") || "jmitchell@ai4websitedesign.com";
+  const ownerEmail = env("AI4_INTERNAL_NOTIFICATION_EMAIL") || env("RESEND_TO_EMAIL");
   const submittedAt = new Date().toISOString();
+
+  if (!ownerEmail) {
+    return json(502, { success: false, error: "AI4 owner notification email is not configured." });
+  }
 
   const record = {
     businessName,
