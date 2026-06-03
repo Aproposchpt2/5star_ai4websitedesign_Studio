@@ -579,6 +579,19 @@
       gap: 12px;
     }
 
+    .contact-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .contact-field label {
+      color: var(--cyan);
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
     .full { grid-column: 1 / -1; }
 
     input, textarea, select {
@@ -599,6 +612,31 @@
 
     input::placeholder, textarea::placeholder { color: #778493; }
     select option { color: #10151b; }
+
+    .cta-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .cta-choice {
+      min-height: 58px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(122, 216, 255, .18);
+      background: rgba(255, 255, 255, .055);
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 950;
+      text-align: left;
+    }
+
+    .cta-choice.active {
+      border-color: rgba(155, 238, 255, .62);
+      background: rgba(69, 214, 255, .12);
+      color: var(--cyan2);
+    }
 
     .actions {
       display: flex;
@@ -650,7 +688,7 @@
       .hero { min-height: auto; }
       .hero-logo { width: min(430px, 92vw); margin-bottom: 34px; }
       .process-head { align-items: flex-start; flex-direction: column; }
-      .steps, .fields, .contact-fields { grid-template-columns: 1fr; }
+      .steps, .fields, .contact-fields, .cta-options { grid-template-columns: 1fr; }
       .step:last-child { grid-column: auto; }
       .actions, .hero-actions { flex-direction: column-reverse; }
       .btn { width: 100%; }
@@ -739,8 +777,8 @@
       </div>
       <div class="steps">
         <article class="step"><strong>1</strong><h3>Choose the purpose</h3><p>Business, personal, or blog.</p></article>
-        <article class="step"><strong>2</strong><h3>Answer three strategy questions</h3><p>The questions focus on value, audience, and trust.</p></article>
-        <article class="step"><strong>3</strong><h3>Add contact direction</h3><p>Email, phone, social links, and the call to action.</p></article>
+        <article class="step"><strong>2</strong><h3>Answer the strategy questions</h3><p>Business builds follow the richer seven-question AI4 intake.</p></article>
+        <article class="step"><strong>3</strong><h3>Add full contact details</h3><p>Phone, email, address, website, socials, and the call to action.</p></article>
         <article class="step"><strong>4</strong><h3>Build and review</h3><p>The generated site opens in the preview control center.</p></article>
         <article class="step"><strong>5</strong><h3>Choose and join</h3><p>After choosing the site, the member profile triggers delivery by email.</p></article>
       </div>
@@ -782,10 +820,12 @@
   <script>
     const flows = {
       Business: [
-        "What's the name of your Business?",
+        "What is your business name?",
         "What does your business do?",
-        "Who is your ideal customer?",
-        "What should visitors trust you to help them with?"
+        "Who are your ideal customers?",
+        "What makes you different from competitors?",
+        "What do you want visitors to do when they land on your website?",
+        "Anything else you want visitors to know?"
       ],
       Personal: [
         "What do you want people to know about you?",
@@ -835,6 +875,10 @@
       contact: {
         email: "",
         phone: "",
+        address: "",
+        website: "",
+        facebook: "",
+        instagram: "",
         form: "Yes, include a contact form",
         socials: "",
         cta: "Contact Me"
@@ -937,7 +981,8 @@
     }
 
     function totalSteps() {
-      return state.purpose === "Business" ? 7 : 6;
+      if (!state.purpose) return 9;
+      return (flows[state.purpose] || []).length + 3;
     }
 
     function contactStep() {
@@ -960,7 +1005,7 @@
       if (state.step === 0) return "What should this website promote?";
       if (state.step >= 1 && state.step < contactStep()) return flows[state.purpose][state.step - 1];
       if (state.step === styleStep()) return "Choose your style direction.";
-      return "How can visitors contact you, and are you promoting yourself on any social media sites?";
+      return "How can customers reach you?";
     }
 
     function choosePurpose(option) {
@@ -994,6 +1039,19 @@
 
       if (state.step >= 1 && state.step < contactStep()) {
         const key = `q${state.step + 1}`;
+        if (state.purpose === "Business" && state.step === 5) {
+          const ctaChoices = ["Call us", "Book an appointment", "Request a quote", "Shop our products", "Learn more / contact us"];
+          inputArea.innerHTML = `
+            <div class="cta-options">
+              ${ctaChoices.map(choice => `
+                <button class="cta-choice ${choice === state.answers[key] ? "active" : ""}" type="button" data-cta-choice="${escapeHtml(choice)}">
+                  ${escapeHtml(choice)}
+                </button>`).join("")}
+            </div>
+            <input id="ctaAnswerInput" class="full" placeholder="Or write a custom call-to-action." value="${escapeHtml(state.answers[key] || "")}" />`;
+          $("ctaAnswerInput").focus({ preventScroll: true });
+          return;
+        }
         const placeholder = state.purpose === "Business" && state.step === 1 ? "Enter the exact business name." : "Write a simple answer.";
         inputArea.innerHTML = `<textarea id="answerInput" placeholder="${placeholder}">${escapeHtml(state.answers[key] || "")}</textarea>`;
         $("answerInput").focus({ preventScroll: true });
@@ -1003,15 +1061,43 @@
       if (state.step === contactStep()) {
         inputArea.innerHTML = `
         <div class="contact-fields">
-          <input id="contactEmail" type="email" placeholder="Email" value="${escapeHtml(state.contact.email)}" />
-          <input id="phone" type="tel" placeholder="Phone" value="${escapeHtml(state.contact.phone)}" />
-          <select id="formPreference">
-            <option>Yes, include a contact form</option>
-            <option>No form, send visitors to email</option>
-            <option>No form, send visitors to phone</option>
-          </select>
-          <input id="ctaText" placeholder="Preferred call-to-action" value="${escapeHtml(state.contact.cta)}" />
-          <textarea class="full" id="socials" placeholder="Social media links">${escapeHtml(state.contact.socials)}</textarea>
+          <div class="contact-field">
+            <label for="phone">Phone Number</label>
+            <input id="phone" type="tel" placeholder="(702) 555-0100" value="${escapeHtml(state.contact.phone)}" />
+          </div>
+          <div class="contact-field">
+            <label for="contactEmail">Email Address</label>
+            <input id="contactEmail" type="email" placeholder="hello@yourbusiness.com" value="${escapeHtml(state.contact.email)}" />
+          </div>
+          <div class="contact-field">
+            <label for="address">Business Address</label>
+            <input id="address" type="text" placeholder="123 Main St, Las Vegas, NV" value="${escapeHtml(state.contact.address)}" />
+          </div>
+          <div class="contact-field">
+            <label for="website">Existing Website</label>
+            <input id="website" type="url" placeholder="https://yourbusiness.com" value="${escapeHtml(state.contact.website)}" />
+          </div>
+          <div class="contact-field">
+            <label for="facebook">Facebook URL</label>
+            <input id="facebook" type="url" placeholder="https://facebook.com/yourbusiness" value="${escapeHtml(state.contact.facebook)}" />
+          </div>
+          <div class="contact-field">
+            <label for="instagram">Instagram URL</label>
+            <input id="instagram" type="url" placeholder="https://instagram.com/yourbusiness" value="${escapeHtml(state.contact.instagram)}" />
+          </div>
+          <div class="contact-field">
+            <label for="formPreference">Contact Form</label>
+            <select id="formPreference">
+              <option>Yes, include a contact form</option>
+              <option>No form, send visitors to email</option>
+              <option>No form, send visitors to phone</option>
+            </select>
+          </div>
+          <div class="contact-field">
+            <label for="ctaText">Preferred CTA</label>
+            <input id="ctaText" placeholder="Preferred call-to-action" value="${escapeHtml(state.contact.cta || state.answers.q6 || "Contact Me")}" />
+          </div>
+          <textarea class="full" id="socials" placeholder="Other social links, hours, service areas, or footer notes">${escapeHtml(state.contact.socials)}</textarea>
         </div>`;
         $("formPreference").value = state.contact.form;
         return;
@@ -1031,12 +1117,23 @@
     function saveCurrent() {
       if (state.step >= 1 && state.step < contactStep()) {
         const input = $("answerInput");
+        const ctaInput = $("ctaAnswerInput");
         if (input) state.answers[`q${state.step + 1}`] = input.value.trim();
+        if (ctaInput) {
+          state.answers[`q${state.step + 1}`] = ctaInput.value.trim();
+          if (state.purpose === "Business" && state.step === 5 && ctaInput.value.trim()) {
+            state.contact.cta = ctaInput.value.trim();
+          }
+        }
       }
 
       if (state.step === contactStep()) {
         state.contact.email = $("contactEmail").value.trim();
         state.contact.phone = $("phone").value.trim();
+        state.contact.address = $("address").value.trim();
+        state.contact.website = $("website").value.trim();
+        state.contact.facebook = $("facebook").value.trim();
+        state.contact.instagram = $("instagram").value.trim();
         state.contact.form = $("formPreference").value.trim();
         state.contact.cta = $("ctaText").value.trim() || "Contact Me";
         state.contact.socials = $("socials").value.trim();
@@ -1054,7 +1151,7 @@
       const builtHtml = buildWebsiteHtml(payload);
       storeJson("ai4_answers", { purpose: state.purpose, style: state.style, answers: state.answers, contact: state.contact });
       storeJson("fiveKaratPreview", payload);
-      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, purpose: state.purpose, style: state.style });
+      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, address: state.contact.address, website: state.contact.website, facebook: state.contact.facebook, instagram: state.contact.instagram, contact: state.contact, purpose: state.purpose, style: state.style });
       storeValue("ai4_email", state.contact.email);
       storeValue("ai4_phone", state.contact.phone);
       storeValue("ai4_name", payload.websiteTitle);
@@ -1310,7 +1407,9 @@
           brandName: sentence(answers.q2, "Your Business"),
           description: sentence(answers.q3, "a specialized professional service"),
           audience: sentence(answers.q4, "discerning customers"),
-          outcome: sentence(answers.q5, "move forward with confidence")
+          differentiator: sentence(answers.q5, "clear standards, dependable service, and practical expertise"),
+          outcome: sentence(answers.q6, "move forward with confidence"),
+          extras: sentence(answers.q7, "")
         };
       }
 
@@ -1337,8 +1436,8 @@
           },
           {
             label: "Why It Matters",
-            title: `Confidence before the decision.`,
-            body: `Every detail is designed to make the next step easier, more informed, and more dependable.`
+            title: `Different by design.`,
+            body: `${profile.differentiator}. Every detail is designed to make the next step easier, more informed, and more dependable.`
           },
           {
             label: "How It Works",
@@ -1348,7 +1447,9 @@
           {
             label: "Next Step",
             title: cta,
-            body: `Start with a focused conversation about goals, timing, and what success should look like.`
+            body: profile.extras
+              ? `${profile.extras}. Start with a focused conversation about goals, timing, and what success should look like.`
+              : `Start with a focused conversation about goals, timing, and what success should look like.`
           }
         ];
       }
@@ -1469,20 +1570,69 @@
       return { ...system, quality: runQualityGate(system) };
     }
 
-    function buildPreviewPayload() {
-      const purpose = state.purpose || "Business";
-      const answers = state.answers;
-      const cta = state.contact.cta || "Contact Me";
-      const profile = getIntakeProfile(purpose, answers);
-      const publicCards = buildPublicCards(purpose, profile, cta);
-      const heroBadge = buildHeroBadge(purpose, profile);
-      const socials = state.contact.socials
+    function normalizeUrl(value) {
+      const clean = String(value || "").trim();
+      if (!clean) return "";
+      return /^https?:\/\//i.test(clean) ? clean : `https://${clean}`;
+    }
+
+    function maybeUrl(value) {
+      const clean = String(value || "").trim();
+      if (!clean) return "";
+      return /^(https?:\/\/|www\.|[a-z0-9-]+\.[a-z]{2,})/i.test(clean) ? normalizeUrl(clean) : "";
+    }
+
+    function phoneHref(value) {
+      const clean = String(value || "").replace(/[^\d+]/g, "");
+      return clean ? `tel:${clean}` : "";
+    }
+
+    function emailHref(value) {
+      const clean = String(value || "").trim();
+      return clean ? `mailto:${clean}` : "";
+    }
+
+    function contactItem(label, value, href = "") {
+      const clean = String(value || "").trim();
+      return clean ? { label, value: clean, href } : null;
+    }
+
+    function splitSocials(value) {
+      return String(value || "")
         .split(/\n|,/)
         .map(item => item.trim())
         .filter(Boolean);
-      const contactLine = [state.contact.email || state.member.email, state.contact.phone]
+    }
+
+    function buildPreviewPayload() {
+      const purpose = state.purpose || "Business";
+      const answers = state.answers;
+      const cta = state.contact.cta || (purpose === "Business" ? answers.q6 : "") || "Contact Me";
+      const profile = getIntakeProfile(purpose, answers);
+      const publicCards = buildPublicCards(purpose, profile, cta);
+      const heroBadge = buildHeroBadge(purpose, profile);
+      const email = state.contact.email || state.member.email;
+      const contactItems = [
+        contactItem("Phone", state.contact.phone, phoneHref(state.contact.phone)),
+        contactItem("Email", email, emailHref(email)),
+        contactItem("Address", state.contact.address),
+        contactItem("Website", state.contact.website, normalizeUrl(state.contact.website))
+      ].filter(Boolean);
+      const socialItems = [
+        contactItem("Facebook", state.contact.facebook, normalizeUrl(state.contact.facebook)),
+        contactItem("Instagram", state.contact.instagram, normalizeUrl(state.contact.instagram)),
+        ...splitSocials(state.contact.socials).map((item, index) => contactItem(index ? `Social ${index + 1}` : "Social", item, maybeUrl(item)))
+      ].filter(Boolean);
+      const contactLine = contactItems.map(item => item.value)
         .filter(Boolean)
         .join(" | ") || "hello@example.com | {{PHONE}}";
+      const socials = socialItems.map(item => item.value);
+      const locationLine = state.contact.address || (purpose === "Business" ? "Service Area" : purpose);
+      const ctaLink = /phone/i.test(state.contact.form) && state.contact.phone
+        ? phoneHref(state.contact.phone)
+        : /email/i.test(state.contact.form) && email
+          ? emailHref(email)
+          : "#contact";
       const system = getDesignSystem(purpose, profile, cta);
 
       const content = {
@@ -1492,12 +1642,14 @@
           headline: `A more trusted way to ${profile.outcome}.`,
           subheadline: `${profile.description} for ${profile.audience}. Designed for clarity, confidence, and a polished experience from first conversation to final result.`,
           valueStatement: `Focused expertise, elevated presentation, and a service experience built around ${profile.outcome}.`,
-          aboutCopy: `${profile.brandName} serves clients who want more than a quick transaction. The work is shaped around careful listening, clear recommendations, and dependable execution.`,
+          aboutCopy: `${profile.brandName} serves clients who want more than a quick transaction. ${profile.differentiator}. The work is shaped around careful listening, clear recommendations, and dependable execution.`,
           trustHeadline: "Confidence before the conversation.",
           trustBody: `Trust is built through clarity, follow-through, and practical expertise around ${profile.outcome}.`,
           contactHeadline: "Start with a precise next step.",
-          contactBody: "Share what you need, where you are, and what matters most. The next conversation will help clarify the right path forward.",
-          footerLine: "Built by AI4 for trust, clarity, and conversion."
+          contactBody: state.contact.address
+            ? `Reach ${profile.brandName} using the details below, or start with ${cta}.`
+            : "Share what you need, where you are, and what matters most. The next conversation will help clarify the right path forward.",
+          footerLine: profile.extras || "Built by AI4 for trust, clarity, and conversion."
         },
         Personal: {
           websiteTitle: profile.brandName,
@@ -1533,8 +1685,12 @@
         primaryCta: cta,
         secondaryCta: purpose === "Blog" ? "Browse Topics" : purpose === "Personal" ? "Explore Profile" : "View Services",
         contactLine,
+        contactItems,
+        socialItems,
         socials: socials.length ? socials.join(" | ") : "Social links available upon request",
-        ctaLink: "offer.html",
+        locationLine,
+        formPreference: state.contact.form,
+        ctaLink,
         designSystem: system.concept,
         conceptLane: system.conceptLane,
         styleChoice: system.styleChoice,
@@ -1588,10 +1744,24 @@
         { label: "Trust", title: data.trustHeadline, body: data.trustBody }
       ];
       const renderProof = (className = "proof-item") => proofItems.map((item, index) => renderCard(item, index, className)).join("");
-      const nav = `<nav><div>${escapeHtml(data.websiteTitle)}</div><div class="badge">${escapeHtml(data.purpose)} Website | {{CITY}}</div></nav>`;
+      const renderContactItem = item => `
+        <${item.href ? "a" : "div"} class="contact-item"${item.href ? ` href="${escapeHtml(item.href)}"` : ""}${item.href && /^https?:/i.test(item.href) ? ` target="_blank" rel="noopener"` : ""}>
+          <small>${escapeHtml(item.label)}</small>
+          <strong>${escapeHtml(item.value)}</strong>
+        </${item.href ? "a" : "div"}>`;
+      const contactItems = Array.isArray(data.contactItems) ? data.contactItems : [];
+      const socialItems = Array.isArray(data.socialItems) ? data.socialItems : [];
+      const contactList = contactItems.length
+        ? `<div class="contact-list">${contactItems.map(renderContactItem).join("")}</div>`
+        : `<p>${escapeHtml(data.contactLine)}</p>`;
+      const socialList = socialItems.length
+        ? `<div class="social-list">${socialItems.map(renderContactItem).join("")}</div>`
+        : `<p>${escapeHtml(data.socials)}</p>`;
+      const footerMeta = [data.websiteTitle, data.locationLine, data.contactLine].filter(Boolean).join(" | ");
+      const nav = `<nav><div>${escapeHtml(data.websiteTitle)}</div><div class="badge">${escapeHtml(data.purpose)} Website | ${escapeHtml(data.locationLine || "Contact")}</div></nav>`;
       const actionRow = `<div class="actions"><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><a class="secondary" href="#details">${escapeHtml(data.secondaryCta)}</a></div>`;
       const signature = `<aside class="signature"><small>${escapeHtml(heroBadge.label)}</small><strong>${escapeHtml(heroBadge.title)}</strong><p>${escapeHtml(heroBadge.body)}</p></aside>`;
-      const contact = `<section class="contact" id="contact"><h2>${escapeHtml(data.contactHeadline)}</h2><div><p>${escapeHtml(data.contactBody)}</p><p>${escapeHtml(data.contactLine)}</p><p>${escapeHtml(data.socials)}</p><a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><div class="footerline">${escapeHtml(data.footerLine)}</div></div></section>`;
+      const contact = `<section class="contact" id="contact"><h2>${escapeHtml(data.contactHeadline)}</h2><div><p>${escapeHtml(data.contactBody)}</p>${contactList}${socialList}<a class="cta" href="${escapeHtml(data.ctaLink)}">${escapeHtml(data.primaryCta)}</a><div class="footerline">${escapeHtml(data.footerLine)}</div><div class="footerline">${escapeHtml(footerMeta)}</div></div></section>`;
       const copyBlock = `<div class="copy"><div class="kicker">${escapeHtml(data.eyebrow)}</div>${brandDominance}<h1>${escapeHtml(data.headline)}</h1><p>${escapeHtml(data.subheadline)}</p>${actionRow}</div>`;
 
       const renderers = {
@@ -1634,11 +1804,11 @@
 <title>${escapeHtml(data.websiteTitle)}</title>
 <style>
 :root{--paper:${escapeHtml(palette.paper || "#fff5df")};--ink:${escapeHtml(palette.ink || "#17110c")};--muted:${escapeHtml(palette.muted || "#655a4c")};--dark:${escapeHtml(palette.dark || "#100d0a")};--accent:${escapeHtml(palette.accent || "#c89b4f")};--signal:${escapeHtml(palette.signal || "#4ec9f5")};--soft:${escapeHtml(palette.soft || "#f4e5c7")};--line:color-mix(in srgb,var(--ink) 16%,transparent)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}h1,h2,p{margin-top:0}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 84% 14%,color-mix(in srgb,var(--signal) 20%,transparent),transparent 34%),radial-gradient(circle at 8% 90%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 30%),var(--paper)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:2}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.opening{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.opening:before{content:"";position:absolute;inset:12vh -16vw auto auto;width:48vw;height:48vw;min-width:280px;min-height:280px;border:1px solid color-mix(in srgb,var(--accent) 54%,transparent);border-radius:50%;box-shadow:0 0 120px color-mix(in srgb,var(--signal) 16%,transparent);pointer-events:none}.copy{position:relative;z-index:1}.kicker,.issue-label,.signature small,.idea-card small,.proof-slab small,.path-card small,.column-card small,.material-card small,.showroom-card small,.corridor small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.kicker{margin-bottom:22px}.brand-dominant{font-family:Georgia,serif;font-size:clamp(62px,10vw,150px);line-height:.78;letter-spacing:-.08em;max-width:980px;margin:0 0 22px;color:var(--ink)}.copy h1,.editorial-cover h1,.showroom-reveal h1{font-family:Georgia,serif;font-size:clamp(44px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:1020px}.copy p,.editorial-cover>p,.showroom-reveal>p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent);position:relative;z-index:1}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p,.idea-card p,.proof-slab p,.path-card p,.column-card p,.material-card p,.showroom-card p,.corridor p{margin:0;color:var(--muted);line-height:1.7}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:32px;color:var(--ink)}.axis-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end}.proof-band{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-slab{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-slab:last-child{border-right:0}.proof-slab h2,.idea-card h2,.path-card h2,.column-card h2,.material-card h2,.showroom-card h2,.corridor h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:22px 0 16px}.experience-wall{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.idea-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.idea-card:nth-child(2n){transform:translateY(36px)}.idea-card:nth-child(3n){grid-column:span 5}.idea-card:nth-child(4n){grid-column:span 7}.private-grid{align-self:center;display:grid;grid-template-columns:.42fr 1fr;gap:clamp(30px,6vw,90px);align-items:center}.index-stack{border:1px solid var(--line);background:var(--dark);color:var(--paper);padding:18px;display:grid;gap:10px}.index-stack a{color:inherit;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--paper) 18%,transparent);padding:18px 8px;font-weight:900;letter-spacing:.05em}.index-stack span{color:var(--signal);margin-right:14px}.invitation-panel{display:grid;grid-template-columns:.7fr 1fr;gap:30px;padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);background:var(--dark);color:var(--paper)}.invitation-panel p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.invitation-panel h2{font-family:Georgia,serif;font-size:clamp(34px,5vw,72px);line-height:.95;letter-spacing:-.06em}.ledger{padding:clamp(32px,6vw,74px);display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line)}.ledger article{background:var(--paper);padding:26px;min-height:260px}.command-grid{align-self:center;display:grid;grid-template-columns:.86fr 1.1fr .34fr;gap:22px;align-items:stretch}.signal-map{min-height:560px;position:relative;border:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--dark) 88%,transparent),color-mix(in srgb,var(--paper) 74%,transparent));overflow:hidden}.signal-map:before{content:"";position:absolute;inset:12%;border:1px solid color-mix(in srgb,var(--signal) 48%,transparent);transform:rotate(-14deg)}.signal-node{position:absolute;width:min(280px,44%);padding:18px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 86%,white 14%);box-shadow:0 18px 70px color-mix(in srgb,var(--dark) 18%,transparent)}.node-1{left:8%;top:8%}.node-2{right:8%;top:28%}.node-3{left:14%;bottom:18%}.node-4{right:12%;bottom:8%}.signal-node strong{display:block;margin:8px 0;font-family:Georgia,serif;font-size:26px;line-height:1}.signal-node p{font-size:14px}.action-rail{writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;gap:24px;background:var(--dark);color:var(--paper);padding:20px;text-transform:uppercase;letter-spacing:.14em;font-weight:950}.action-rail p{writing-mode:horizontal-tb;text-transform:none;letter-spacing:0;font-weight:500;line-height:1.5;color:color-mix(in srgb,var(--paper) 72%,transparent)}.pathway{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.path-card{padding:clamp(28px,4vw,48px);border-right:1px solid var(--line);min-height:280px}.editorial-cover{text-align:center;align-content:center}.editorial-cover h1{margin-left:auto;margin-right:auto;font-size:clamp(54px,8vw,118px)}.editorial-cover>p{margin-left:auto;margin-right:auto}.pull-quote{padding:clamp(44px,8vw,100px) clamp(22px,9vw,130px);background:var(--dark);color:var(--paper);text-align:center}.pull-quote h2{font-family:Georgia,serif;font-size:clamp(40px,7vw,96px);line-height:.94;letter-spacing:-.06em;margin:18px auto;max-width:1100px}.pull-quote p{color:color-mix(in srgb,var(--paper) 72%,transparent);font-size:20px;line-height:1.7;max-width:760px;margin:0 auto}.editorial-columns{columns:3 260px;column-gap:0;border-top:1px solid var(--line)}.column-card{break-inside:avoid;padding:34px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:250px}.showroom-opening{background:linear-gradient(180deg,color-mix(in srgb,var(--dark) 92%,var(--paper) 8%),var(--paper));color:var(--paper)}.showroom-opening nav .badge{color:var(--ink)}.showroom-reveal{align-self:end;display:grid;grid-template-columns:1fr .62fr;gap:32px;align-items:end;position:relative;z-index:1}.showroom-reveal strong{display:block;font-size:13px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:20px;color:var(--signal)}.showroom-reveal p{color:color-mix(in srgb,var(--paper) 76%,transparent)}.material-wall{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:16px;padding:clamp(34px,6vw,80px);background:var(--soft)}.material-card{background:var(--paper);border:1px solid var(--line);padding:30px;min-height:320px}.material-card:nth-child(2){transform:translateY(44px)}.staggered-showroom{padding:clamp(34px,6vw,80px);display:grid;grid-template-columns:repeat(6,1fr);gap:18px}.showroom-card{grid-column:span 3;border:1px solid var(--line);padding:30px;min-height:280px;background:color-mix(in srgb,var(--paper) 80%,white 20%)}.showroom-card.tall{min-height:380px}.founder-opening{background:linear-gradient(90deg,var(--paper) 0 56%,var(--dark) 56% 100%)}.founder-field{align-self:center;display:grid;grid-template-columns:.22fr 1fr .45fr;gap:28px;align-items:center}.signature-line{writing-mode:vertical-rl;font-family:Georgia,serif;font-size:clamp(36px,6vw,80px);line-height:.85;letter-spacing:-.06em;color:var(--accent)}.founder-field .signature{background:var(--dark);color:var(--paper)}.founder-field .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}.corridor{padding:clamp(34px,6vw,80px);display:grid;gap:0;background:var(--paper)}.corridor article{display:grid;grid-template-columns:90px 1fr;gap:26px;border-top:1px solid var(--line);padding:28px 0}.corridor article:last-child{border-bottom:1px solid var(--line)}.corridor span{font-size:12px;font-weight:950;letter-spacing:.18em;color:var(--accent)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.footerline{margin-top:34px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}h1,h2,p{margin-top:0}.page{min-height:100vh;overflow:hidden;background:radial-gradient(circle at 84% 14%,color-mix(in srgb,var(--signal) 20%,transparent),transparent 34%),radial-gradient(circle at 8% 90%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 30%),var(--paper)}nav{display:flex;justify-content:space-between;gap:20px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:950;position:relative;z-index:2}.badge{border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:color-mix(in srgb,var(--paper) 72%,white 28%)}.opening{min-height:94vh;padding:34px clamp(22px,6vw,82px);display:grid;grid-template-rows:auto 1fr;gap:42px;position:relative}.opening:before{content:"";position:absolute;inset:12vh -16vw auto auto;width:48vw;height:48vw;min-width:280px;min-height:280px;border:1px solid color-mix(in srgb,var(--accent) 54%,transparent);border-radius:50%;box-shadow:0 0 120px color-mix(in srgb,var(--signal) 16%,transparent);pointer-events:none}.copy{position:relative;z-index:1}.kicker,.issue-label,.signature small,.idea-card small,.proof-slab small,.path-card small,.column-card small,.material-card small,.showroom-card small,.corridor small,.contact-item small{display:block;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;font-size:11px;font-weight:950}.kicker{margin-bottom:22px}.brand-dominant{font-family:Georgia,serif;font-size:clamp(62px,10vw,150px);line-height:.78;letter-spacing:-.08em;max-width:980px;margin:0 0 22px;color:var(--ink)}.copy h1,.editorial-cover h1,.showroom-reveal h1{font-family:Georgia,serif;font-size:clamp(44px,7vw,96px);line-height:.9;letter-spacing:-.06em;margin:0 0 24px;max-width:1020px}.copy p,.editorial-cover>p,.showroom-reveal>p{max-width:720px;font-size:clamp(18px,2vw,23px);line-height:1.62;color:var(--muted)}.actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.cta{display:inline-flex;margin-top:18px;background:var(--dark);color:var(--paper);text-decoration:none;padding:16px 23px;border-radius:999px;font-weight:950;box-shadow:0 18px 44px color-mix(in srgb,var(--dark) 22%,transparent)}.secondary{display:inline-flex;margin-top:18px;color:var(--ink);font-weight:950;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:4px}.signature{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 76%,white 24%);padding:22px;border-radius:26px;box-shadow:0 24px 80px color-mix(in srgb,var(--dark) 10%,transparent);position:relative;z-index:1}.signature strong{display:block;margin:14px 0 10px;font-family:Georgia,serif;font-size:clamp(24px,2.7vw,38px);line-height:1;letter-spacing:-.04em}.signature p,.idea-card p,.proof-slab p,.path-card p,.column-card p,.material-card p,.showroom-card p,.corridor p{margin:0;color:var(--muted);line-height:1.7}.num{font-size:12px;letter-spacing:.2em;font-weight:950;margin-bottom:32px;color:var(--ink)}.axis-grid{align-self:center;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.42fr);gap:clamp(28px,6vw,84px);align-items:end}.proof-band{display:grid;grid-template-columns:1.05fr .95fr 1.1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--soft) 64%,white 36%)}.proof-slab{min-height:290px;padding:clamp(25px,4vw,46px);border-right:1px solid var(--line)}.proof-slab:last-child{border-right:0}.proof-slab h2,.idea-card h2,.path-card h2,.column-card h2,.material-card h2,.showroom-card h2,.corridor h2{font-family:Georgia,serif;font-size:clamp(28px,3.3vw,46px);line-height:.98;letter-spacing:-.05em;margin:22px 0 16px}.experience-wall{padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);display:grid;grid-template-columns:repeat(12,1fr);gap:16px;background:linear-gradient(180deg,var(--paper),color-mix(in srgb,var(--paper) 70%,var(--soft) 30%))}.idea-card{grid-column:span 4;min-height:300px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 78%,white 22%);border-radius:24px;padding:28px;position:relative;overflow:hidden}.idea-card:nth-child(2n){transform:translateY(36px)}.idea-card:nth-child(3n){grid-column:span 5}.idea-card:nth-child(4n){grid-column:span 7}.private-grid{align-self:center;display:grid;grid-template-columns:.42fr 1fr;gap:clamp(30px,6vw,90px);align-items:center}.index-stack{border:1px solid var(--line);background:var(--dark);color:var(--paper);padding:18px;display:grid;gap:10px}.index-stack a{color:inherit;text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--paper) 18%,transparent);padding:18px 8px;font-weight:900;letter-spacing:.05em}.index-stack span{color:var(--signal);margin-right:14px}.invitation-panel{display:grid;grid-template-columns:.7fr 1fr;gap:30px;padding:clamp(42px,7vw,86px) clamp(22px,6vw,82px);background:var(--dark);color:var(--paper)}.invitation-panel p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.invitation-panel h2{font-family:Georgia,serif;font-size:clamp(34px,5vw,72px);line-height:.95;letter-spacing:-.06em}.ledger{padding:clamp(32px,6vw,74px);display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line)}.ledger article{background:var(--paper);padding:26px;min-height:260px}.command-grid{align-self:center;display:grid;grid-template-columns:.86fr 1.1fr .34fr;gap:22px;align-items:stretch}.signal-map{min-height:560px;position:relative;border:1px solid var(--line);background:linear-gradient(135deg,color-mix(in srgb,var(--dark) 88%,transparent),color-mix(in srgb,var(--paper) 74%,transparent));overflow:hidden}.signal-map:before{content:"";position:absolute;inset:12%;border:1px solid color-mix(in srgb,var(--signal) 48%,transparent);transform:rotate(-14deg)}.signal-node{position:absolute;width:min(280px,44%);padding:18px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 86%,white 14%);box-shadow:0 18px 70px color-mix(in srgb,var(--dark) 18%,transparent)}.node-1{left:8%;top:8%}.node-2{right:8%;top:28%}.node-3{left:14%;bottom:18%}.node-4{right:12%;bottom:8%}.signal-node strong{display:block;margin:8px 0;font-family:Georgia,serif;font-size:26px;line-height:1}.signal-node p{font-size:14px}.action-rail{writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;gap:24px;background:var(--dark);color:var(--paper);padding:20px;text-transform:uppercase;letter-spacing:.14em;font-weight:950}.action-rail p{writing-mode:horizontal-tb;text-transform:none;letter-spacing:0;font-weight:500;line-height:1.5;color:color-mix(in srgb,var(--paper) 72%,transparent)}.pathway{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.path-card{padding:clamp(28px,4vw,48px);border-right:1px solid var(--line);min-height:280px}.editorial-cover{text-align:center;align-content:center}.editorial-cover h1{margin-left:auto;margin-right:auto;font-size:clamp(54px,8vw,118px)}.editorial-cover>p{margin-left:auto;margin-right:auto}.pull-quote{padding:clamp(44px,8vw,100px) clamp(22px,9vw,130px);background:var(--dark);color:var(--paper);text-align:center}.pull-quote h2{font-family:Georgia,serif;font-size:clamp(40px,7vw,96px);line-height:.94;letter-spacing:-.06em;margin:18px auto;max-width:1100px}.pull-quote p{color:color-mix(in srgb,var(--paper) 72%,transparent);font-size:20px;line-height:1.7;max-width:760px;margin:0 auto}.editorial-columns{columns:3 260px;column-gap:0;border-top:1px solid var(--line)}.column-card{break-inside:avoid;padding:34px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:250px}.showroom-opening{background:linear-gradient(180deg,color-mix(in srgb,var(--dark) 92%,var(--paper) 8%),var(--paper));color:var(--paper)}.showroom-opening nav .badge{color:var(--ink)}.showroom-reveal{align-self:end;display:grid;grid-template-columns:1fr .62fr;gap:32px;align-items:end;position:relative;z-index:1}.showroom-reveal strong{display:block;font-size:13px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:20px;color:var(--signal)}.showroom-reveal p{color:color-mix(in srgb,var(--paper) 76%,transparent)}.material-wall{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:16px;padding:clamp(34px,6vw,80px);background:var(--soft)}.material-card{background:var(--paper);border:1px solid var(--line);padding:30px;min-height:320px}.material-card:nth-child(2){transform:translateY(44px)}.staggered-showroom{padding:clamp(34px,6vw,80px);display:grid;grid-template-columns:repeat(6,1fr);gap:18px}.showroom-card{grid-column:span 3;border:1px solid var(--line);padding:30px;min-height:280px;background:color-mix(in srgb,var(--paper) 80%,white 20%)}.showroom-card.tall{min-height:380px}.founder-opening{background:linear-gradient(90deg,var(--paper) 0 56%,var(--dark) 56% 100%)}.founder-field{align-self:center;display:grid;grid-template-columns:.22fr 1fr .45fr;gap:28px;align-items:center}.signature-line{writing-mode:vertical-rl;font-family:Georgia,serif;font-size:clamp(36px,6vw,80px);line-height:.85;letter-spacing:-.06em;color:var(--accent)}.founder-field .signature{background:var(--dark);color:var(--paper)}.founder-field .signature p{color:color-mix(in srgb,var(--paper) 72%,transparent)}.corridor{padding:clamp(34px,6vw,80px);display:grid;gap:0;background:var(--paper)}.corridor article{display:grid;grid-template-columns:90px 1fr;gap:26px;border-top:1px solid var(--line);padding:28px 0}.corridor article:last-child{border-bottom:1px solid var(--line)}.corridor span{font-size:12px;font-weight:950;letter-spacing:.18em;color:var(--accent)}.contact{padding:clamp(38px,7vw,86px);background:var(--dark);color:var(--paper);display:grid;grid-template-columns:1fr 1fr;gap:34px}.contact h2{font-family:Georgia,serif;font-size:clamp(42px,6vw,82px);line-height:.9;letter-spacing:-.06em;margin:0}.contact p{color:color-mix(in srgb,var(--paper) 72%,transparent);line-height:1.7}.contact-list,.social-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:22px 0 0}.contact-item{display:block;border:1px solid color-mix(in srgb,var(--paper) 16%,transparent);padding:16px;text-decoration:none;color:var(--paper);background:color-mix(in srgb,var(--paper) 6%,transparent)}.contact-item strong{display:block;margin-top:8px;line-height:1.35;overflow-wrap:anywhere}.social-list{margin-top:12px}.footerline{margin-top:24px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--paper) 48%,transparent)}
 [data-brand-focus="true"] .brand-dominant{font-size:clamp(50px,7.6vw,110px)}[data-brand-focus="true"] .copy h1{font-size:clamp(30px,4.2vw,56px);line-height:.98;max-width:760px}.signal-node{z-index:1}.showroom-opening .brand-dominant{color:color-mix(in srgb,var(--paper) 90%,transparent);font-size:clamp(52px,7.4vw,114px);max-width:900px}.showroom-reveal{align-self:center;grid-template-columns:.95fr .68fr}.showroom-reveal h1{font-size:clamp(38px,5.4vw,74px);max-width:820px}
 [data-brand-focus="true"] .brand-dominant{font-size:clamp(44px,6.4vw,90px);line-height:.82}[data-brand-focus="true"] .copy h1{font-size:clamp(26px,3.2vw,44px);line-height:1;max-width:620px}[data-brand-focus="true"] .copy p{font-size:clamp(15px,1.55vw,19px);line-height:1.5}.action-rail p{display:none}
 @media(max-width:980px){.axis-grid,.private-grid,.command-grid,.showroom-reveal,.founder-field,.invitation-panel,.contact{grid-template-columns:1fr}.proof-band,.pathway,.material-wall,.ledger{grid-template-columns:1fr}.proof-slab,.path-card{border-right:0;border-bottom:1px solid var(--line)}.experience-wall,.staggered-showroom{grid-template-columns:1fr}.idea-card,.idea-card:nth-child(3n),.idea-card:nth-child(4n),.showroom-card{grid-column:auto}.idea-card:nth-child(2n),.material-card:nth-child(2){transform:none}.signal-map{min-height:auto;display:grid;gap:12px;padding:16px}.signal-map:before{display:none}.signal-node{position:relative;width:100%;inset:auto}.action-rail{writing-mode:horizontal-tb}.founder-opening{background:var(--paper)}.signature-line{writing-mode:horizontal-tb}.ledger{gap:1px}}
-@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.opening{min-height:86vh;padding:24px 22px}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.signature{border-radius:18px}.brand-dominant{font-size:clamp(50px,16vw,84px)}.copy h1,.editorial-cover h1,.showroom-reveal h1{font-size:clamp(42px,14vw,70px)}.contact{padding:32px 22px}.corridor article{grid-template-columns:1fr}.editorial-columns{columns:1}}
+@media(max-width:620px){nav{align-items:flex-start;flex-direction:column}.opening{min-height:86vh;padding:24px 22px}.actions{align-items:flex-start;flex-direction:column}.cta{width:100%;justify-content:center}.signature{border-radius:18px}.brand-dominant{font-size:clamp(50px,16vw,84px)}.copy h1,.editorial-cover h1,.showroom-reveal h1{font-size:clamp(42px,14vw,70px)}.contact{padding:32px 22px}.contact-list,.social-list{grid-template-columns:1fr}.corridor article{grid-template-columns:1fr}.editorial-columns{columns:1}}
 </style>
 </head>
 <body>
@@ -1661,6 +1831,10 @@ ${body}
       state.contact = {
         email: "",
         phone: "",
+        address: "",
+        website: "",
+        facebook: "",
+        instagram: "",
         form: "Yes, include a contact form",
         socials: "",
         cta: "Contact Me"
@@ -1684,6 +1858,15 @@ ${body}
       const styleButton = event.target.closest("[data-style-choice]");
       if (styleButton) {
         state.style = styleButton.dataset.styleChoice;
+        render();
+        return;
+      }
+
+      const ctaButton = event.target.closest("[data-cta-choice]");
+      if (ctaButton) {
+        const key = `q${state.step + 1}`;
+        state.answers[key] = ctaButton.dataset.ctaChoice;
+        state.contact.cta = ctaButton.dataset.ctaChoice;
         render();
       }
     });
@@ -1724,7 +1907,7 @@ ${body}
       storeJson("ai4_answers", { purpose: state.purpose, style: state.style, answers: state.answers, contact: state.contact, member: state.member });
       storeJson("ai4_member", state.member);
       storeJson("fiveKaratPreview", payload);
-      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, purpose: state.purpose, style: state.style });
+      storeJson("ai4_site_data", { businessName: payload.websiteTitle, email: state.contact.email, phone: state.contact.phone, address: state.contact.address, website: state.contact.website, facebook: state.contact.facebook, instagram: state.contact.instagram, contact: state.contact, purpose: state.purpose, style: state.style });
       storeValue("ai4_selected_style", state.style);
       storeValue("ai4_email", state.contact.email);
       storeValue("ai4_phone", state.contact.phone);

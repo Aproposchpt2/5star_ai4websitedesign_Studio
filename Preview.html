@@ -1377,7 +1377,15 @@
 
     function openLivePreview() {
       if (state.previewObjectUrl) URL.revokeObjectURL(state.previewObjectUrl);
-      const blob = new Blob([state.builtHtml], { type: "text/html" });
+      const returnUrl = new URL("index.html#builder", window.location.href).href;
+      const returnBar = `
+        <div style="position:fixed;left:16px;bottom:16px;z-index:2147483647;font-family:Inter,Arial,sans-serif;">
+          <a href="${escapeHtml(returnUrl)}" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:12px 16px;border-radius:999px;background:#071225;color:#ffffff;text-decoration:none;font-weight:900;box-shadow:0 18px 50px rgba(0,0,0,.28);border:1px solid rgba(91,211,255,.35);">Return to Builder</a>
+        </div>`;
+      const liveHtml = /<\/body>/i.test(state.builtHtml)
+        ? state.builtHtml.replace(/<\/body>/i, `${returnBar}</body>`)
+        : `${state.builtHtml}${returnBar}`;
+      const blob = new Blob([liveHtml], { type: "text/html" });
       state.previewObjectUrl = URL.createObjectURL(blob);
       window.open(state.previewObjectUrl, "_blank", "noopener");
     }
