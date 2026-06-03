@@ -1055,8 +1055,19 @@
       {
         id: "light-professional",
         name: "Light & Professional",
-        swatches: ["#ffffff", "#2563eb", "#60a5fa"],
-        vars: { paper: "#ffffff", ink: "#0f172a", muted: "#64748b", dark: "#071225", accent: "#2563eb", signal: "#60a5fa", soft: "#f1f5f9" }
+        swatches: ["#ffffff", "#dff3ff", "#2563eb"],
+        vars: { paper: "#f8fcff", ink: "#071225", muted: "#53677e", dark: "#0b2b57", accent: "#2563eb", signal: "#5fc7ff", soft: "#eaf6ff" },
+        css: [
+          "body,body .page{background:radial-gradient(circle at 74% 10%,rgba(95,199,255,.26),transparent 34%),radial-gradient(circle at 18% 82%,rgba(37,99,235,.12),transparent 30%),linear-gradient(180deg,#ffffff 0%,#f4fbff 48%,#eaf6ff 100%)!important;color:#071225!important}",
+          "body .page .opening,body .page .hero,body section.hero{background:linear-gradient(180deg,#ffffff 0%,#eef8ff 100%)!important;border-bottom:1px solid rgba(15,23,42,.1)!important}",
+          "body .page nav,body header{background:rgba(248,252,255,.88)!important;color:#071225!important;border-bottom:1px solid rgba(15,23,42,.1)!important;backdrop-filter:blur(18px)!important}",
+          "body .page .badge,body .page .pill{background:#ffffff!important;color:#0b2b57!important;border-color:rgba(37,99,235,.18)!important}",
+          "body .page .idea-card,body .page .proof-slab,body .page .path-card,body .page .column-card,body .page .material-card,body .page .showroom-card,body .page .ledger article,body .page .signature,body .page .block,body .page .service,body .page .contact-item{background:rgba(255,255,255,.88)!important;color:#071225!important;border-color:rgba(15,23,42,.12)!important;box-shadow:0 20px 60px rgba(37,99,235,.10)!important}",
+          "body .page p,body .page li,body p,body li{color:#53677e!important}",
+          "body .page .contact{background:#eaf6ff!important;color:#071225!important;border-top:1px solid rgba(37,99,235,.14)!important}",
+          "body .page .contact p,body .page .footerline{color:rgba(7,18,37,.68)!important}",
+          "body .page .cta,body .page .reserve,body .page a.cta{background:linear-gradient(135deg,#0f4fd6,#5fc7ff)!important;color:#ffffff!important;box-shadow:0 18px 44px rgba(37,99,235,.22)!important}"
+        ].join("\n")
       },
       {
         id: "obsidian-silver",
@@ -1260,7 +1271,7 @@
     function paletteCss(palette) {
       if (!palette || !palette.vars) return "";
       const vars = Object.entries(palette.vars).map(([key, value]) => `--${key}:${value};`).join("");
-      return `:root{${vars}}`;
+      return [`:root{${vars}}`, palette.css || ""].filter(Boolean).join("\n");
     }
 
     function buildOverrideCss() {
